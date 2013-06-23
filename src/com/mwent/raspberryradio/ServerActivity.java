@@ -21,8 +21,8 @@ public class ServerActivity extends BaseActivity
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.content_frame);
-		getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, new SampleListFragment()).commit();
+		setContentView(R.layout.menu_frame_one);
+		getSupportFragmentManager().beginTransaction().replace(R.id.menu_frame_one, new SampleListFragment()).commit();
 
 		setSlidingActionBarEnabled(true);
 

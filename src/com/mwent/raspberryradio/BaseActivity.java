@@ -1,8 +1,6 @@
 package com.mwent.raspberryradio;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.ListFragment;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
@@ -12,7 +10,8 @@ public class BaseActivity extends SlidingFragmentActivity
 {
 
 	private int mTitleRes;
-	protected ListFragment mFrag;
+
+	//	protected ListFragment mFrag;
 
 	public BaseActivity(int titleRes)
 	{
@@ -27,20 +26,20 @@ public class BaseActivity extends SlidingFragmentActivity
 		setTitle(mTitleRes);
 
 		// set the Behind View
-		setBehindContentView(R.layout.menu_frame);
-		if (savedInstanceState == null)
-		{
-			FragmentTransaction t = this.getSupportFragmentManager().beginTransaction();
-			mFrag = new SampleListFragment();
-			t.replace(R.id.menu_frame, mFrag);
-			t.commit();
-		}
-		else
-		{
-			mFrag = (ListFragment)this.getSupportFragmentManager().findFragmentById(R.id.menu_frame);
-		}
+		setBehindContentView(R.layout.menu_frame_one);
+		//		if (savedInstanceState == null)
+		//		{
+		//			FragmentTransaction t = this.getSupportFragmentManager().beginTransaction();
+		//			mFrag = new ServerList();
+		//			t.replace(R.id.menu_frame, new ServerList());
+		//			t.commit();
+		//		}
+		//		else
+		//		{
+		//			mFrag = (ListFragment)this.getSupportFragmentManager().findFragmentById(R.id.menu_frame);
+		//		}
 
-		// customize the SlidingMenu
+		// customize the Sl//ingMenu
 		SlidingMenu sm = getSlidingMenu();
 		sm.setShadowWidthRes(R.dimen.shadow_width);
 		//		sm.setShadowDrawable(R.drawable.shadow);
@@ -58,6 +57,7 @@ public class BaseActivity extends SlidingFragmentActivity
 		{
 		case android.R.id.home:
 			toggle();
+
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
