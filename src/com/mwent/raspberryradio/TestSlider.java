@@ -15,11 +15,12 @@ public class TestSlider extends BaseActivity
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.content_frame);
+
 		getSlidingMenu().setMode(SlidingMenu.LEFT_RIGHT);
 		getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
 
 		//		setBehindContentView(R.id.menu_frame_one);
-		setContentView(R.layout.content_frame);
 		getSupportFragmentManager().beginTransaction().replace(R.id.menu_frame_one, new ServerList()).commit();
 
 		getSlidingMenu().setSecondaryMenu(R.layout.menu_frame_two);
