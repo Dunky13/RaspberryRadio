@@ -9,9 +9,6 @@ import android.view.MenuItem;
 public class SettingsActivity extends Activity
 {
 
-	public SettingsActivity()
-	{
-	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -28,19 +25,6 @@ public class SettingsActivity extends Activity
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.settings, menu);
 		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item)
-	{
-		switch (item.getItemId())
-		{
-		// Respond to the action bar's Up/Home button
-		case android.R.id.home:
-			NavUtils.navigateUpFromSameTask(this);
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
 	}
 
 }
