@@ -1,6 +1,7 @@
 package com.mwent.raspberryradio;
 
 import android.os.Bundle;
+
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
 public class TestSlider extends BaseActivity
@@ -15,7 +16,7 @@ public class TestSlider extends BaseActivity
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.content_frame);
+		setContentView(R.layout.activity_main);
 
 		getSlidingMenu().setMode(SlidingMenu.LEFT_RIGHT);
 		getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);

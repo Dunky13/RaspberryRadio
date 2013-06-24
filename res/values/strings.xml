@@ -7,4 +7,5 @@
 	<string name="add_server">Add</string>
 	<string name="image_text"></string>
 	<string name="title_bar_slide">Sliding Title Bar</string>
+	<string name="album_image">Album Image</string>
 </resources>
