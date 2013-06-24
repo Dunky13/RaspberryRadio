@@ -8,4 +8,8 @@
 	<string name="image_text"></string>
 	<string name="title_bar_slide">Sliding Title Bar</string>
 	<string name="album_image">Album Image</string>
+	<string name="prev">Previous Station</string>
+	<string name="stop">Stop playing</string>
+	<string name="play">Start playing</string>
+	<string name="next">Next Station</string>
 </resources>
