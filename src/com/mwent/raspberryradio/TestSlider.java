@@ -4,14 +4,9 @@ import android.os.Bundle;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
-public class TestSlider extends BaseActivity
+public class TestSlider extends MainActivity
 {
-
-	public TestSlider()
-	{
-		super(R.string.title_bar_slide);
-	}
-
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
