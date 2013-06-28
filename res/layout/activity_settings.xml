@@ -15,7 +15,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@+strings/username" />
+                android:text="@string/username" />
 
             <EditText
                 android:id="@+id/username"
@@ -35,7 +35,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@+strings/password" />
+                android:text="@string/password" />
 
             <EditText
                 android:id="@+id/password"
@@ -53,7 +53,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@+strings/server_ip" />
+                android:text="@string/server_ip" />
 
             <EditText
                 android:id="@+id/server_ip"
@@ -73,7 +73,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@+strings/server_port" />
+                android:text="@string/server_port" />
 
             <EditText
                 android:id="@+id/server_port"

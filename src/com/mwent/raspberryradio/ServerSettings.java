@@ -8,28 +8,36 @@ public class ServerSettings
 	private String username;
 	private String password;
 
+	private String name;
+
 	private final char DELIM;
 
 	public ServerSettings(String line, char delim) throws ServerSettingsException
 	{
 		DELIM = delim;
 		String[] split = line.split(DELIM + "");
-		if (split.length < 4)
+		if (split.length < 5)
 			throw new ServerSettingsException("Too little arguments for the line: " + line);
-		if (split.length > 4)
+		if (split.length > 5)
 			throw new ServerSettingsException("Too much arguments for the line: " + line);
-		ip = split[0];
+		setName(split[0]);
+		ip = split[1];
 		username = split[2];
 		password = split[3];
 
 		try
 		{
-			port = Integer.parseInt(split[1]);
+			port = Integer.parseInt(split[4]);
 		}
 		catch (NumberFormatException e)
 		{
 			port = 6584;
 		}
+	}
+
+	public String getName()
+	{
+		return name;
 	}
 
 	public String getIp()
@@ -50,6 +58,11 @@ public class ServerSettings
 	public String getPassword()
 	{
 		return password;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
 	}
 
 	public void setIp(String ip)
@@ -76,6 +89,8 @@ public class ServerSettings
 	public String toString()
 	{
 		StringBuilder sb = new StringBuilder();
+		sb.append(name);
+		sb.append(DELIM);
 		sb.append(ip);
 		sb.append(DELIM);
 		sb.append(port);
