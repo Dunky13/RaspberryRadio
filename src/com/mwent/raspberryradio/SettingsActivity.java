@@ -2,14 +2,13 @@ package com.mwent.raspberryradio;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
 public class SettingsActivity extends Activity implements OnClickListener
 {
-	
+
 	Button cancel, save;
 
 	@Override
@@ -17,23 +16,27 @@ public class SettingsActivity extends Activity implements OnClickListener
 	{
 		super.onCreate(b);
 		setContentView(R.layout.activity_settings);
-		findViewById(R.id.settings_layout).clearFocus();
+		//		findViewById(R.id.settings_layout).clearFocus();
 
-		cancel = (Button) findViewById(R.id.settings_cancel);
+		cancel = (Button)findViewById(R.id.settings_cancel);
 		cancel.setOnClickListener(this);
-		
-		save = (Button) findViewById(R.id.settings_save);
+
+		save = (Button)findViewById(R.id.settings_save);
 		save.setOnClickListener(this);
 	}
 
 	@Override
-	public void onClick(View v) {
-		switch (v.getId()){
+	public void onClick(View v)
+	{
+		switch (v.getId())
+		{
 		case R.id.settings_cancel:
 			finish();
 		case R.id.settings_save:
+			//			Intent i = new Intent(this, ServerList.class);
+			//			startActivity(i);
 			return;
 		}
 	}
-	
+
 }

@@ -2,103 +2,156 @@ package com.mwent.raspberryradio;
 
 public class ServerSettings
 {
-	private String ip;
-	private int port;
+	public static final ServerSettings NEW_SERVER = new ServerSettings(
+		"New Server",
+		"",
+		6584,
+		"",
+		"",
+		';',
+		R.drawable.ic_action_add,
+		false);
 
-	private String username;
-	private String password;
+	private String _ip;
+	private int _port;
 
-	private String name;
+	private String _username;
+	private String _password;
 
-	private final char DELIM;
+	private String _name;
+
+	private final char _DELIM;
+
+	private final int _image;
+
+	private boolean _writable;
 
 	public ServerSettings(String line, char delim) throws ServerSettingsException
 	{
-		DELIM = delim;
-		String[] split = line.split(DELIM + "");
+		_DELIM = delim;
+		String[] split = line.split(_DELIM + "");
 		if (split.length < 5)
 			throw new ServerSettingsException("Too little arguments for the line: " + line);
 		if (split.length > 5)
 			throw new ServerSettingsException("Too much arguments for the line: " + line);
 		setName(split[0]);
-		ip = split[1];
-		username = split[2];
-		password = split[3];
+		_ip = split[1];
+		_username = split[2];
+		_password = split[3];
 
 		try
 		{
-			port = Integer.parseInt(split[4]);
+			_port = Integer.parseInt(split[4]);
 		}
 		catch (NumberFormatException e)
 		{
-			port = 6584;
+			_port = 6584;
 		}
+
+		_image = R.drawable.ic_action_bookmark;
+		setWritable(true);
+	}
+
+	public ServerSettings(String name, String ip, int port, String username, String password, char delim, int icon, boolean writable)
+	{
+		_name = name;
+		_ip = ip;
+		_port = port;
+		_username = username;
+		_password = password;
+		_DELIM = delim;
+		_image = icon;
+		setWritable(writable);
 	}
 
 	public String getName()
 	{
-		return name;
+		return _name;
 	}
 
 	public String getIp()
 	{
-		return ip;
+		return _ip;
 	}
 
 	public int getPort()
 	{
-		return port;
+		return _port;
 	}
 
 	public String getUsername()
 	{
-		return username;
+		return _username;
 	}
 
 	public String getPassword()
 	{
-		return password;
+		return _password;
+	}
+
+	public int getImage()
+	{
+		return _image;
+	}
+
+	public boolean isWritable()
+	{
+		return _writable;
 	}
 
 	public void setName(String name)
 	{
-		this.name = name;
+		this._name = name;
 	}
 
 	public void setIp(String ip)
 	{
-		this.ip = ip;
+		this._ip = ip;
 	}
 
 	public void setPort(int port)
 	{
-		this.port = port;
+		this._port = port;
 	}
 
 	public void setUsername(String username)
 	{
-		this.username = username;
+		this._username = username;
 	}
 
 	public void setPassword(String password)
 	{
-		this.password = password;
+		this._password = password;
+	}
+
+	public void setWritable(boolean writable)
+	{
+		_writable = writable;
 	}
 
 	@Override
 	public String toString()
 	{
 		StringBuilder sb = new StringBuilder();
-		sb.append(name);
-		sb.append(DELIM);
-		sb.append(ip);
-		sb.append(DELIM);
-		sb.append(port);
-		sb.append(DELIM);
-		sb.append(username);
-		sb.append(DELIM);
-		sb.append(password);
+		sb.append(_name);
+		sb.append(_DELIM);
+		sb.append(_ip);
+		sb.append(_DELIM);
+		sb.append(_port);
+		sb.append(_DELIM);
+		sb.append(_username);
+		sb.append(_DELIM);
+		sb.append(_password);
+		if (isWritable())
+			return sb.toString();
 		return "";
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		ServerSettings other = (ServerSettings)obj;
+		return this.getName().equals(other.getName()) && this.getIp().equals(other.getIp());
 	}
 
 	public class ServerSettingsException extends Exception
@@ -110,5 +163,4 @@ public class ServerSettings
 			super(message);
 		}
 	}
-
 }

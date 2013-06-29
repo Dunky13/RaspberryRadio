@@ -1,17 +1,35 @@
 package com.mwent.raspberryradio;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
+import com.mwent.raspberryradio.ServerSettings.ServerSettingsException;
 
 public class ServerList extends ListFragment
 {
+	private static final String _serverFileName = "servers";
+	private static final char DELIM = ';';
+	private List<ServerSettings> servers;
+
+	private ServerSettingsAdapter adapter;
 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
@@ -21,28 +39,44 @@ public class ServerList extends ListFragment
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
-		SampleAdapter adapter = new SampleAdapter(getActivity());
-		adapter.add(new ServerItem("192.168.0.100", R.drawable.ic_action_bookmark));
-		adapter.add(new ServerItem("94.208.147.102", R.drawable.ic_action_bookmark));
+		adapter = new ServerSettingsAdapter(getActivity());
+
+		read();
+		servers.add(new ServerSettings(
+			"Test server 1",
+			"192.168.0.100",
+			6584,
+			"root",
+			"ww",
+			';',
+			R.drawable.ic_action_bookmark,
+			true));
+		loadServersList();
+
 		setListAdapter(adapter);
 	}
 
-	private class ServerItem
+	public void add(ServerSettings setting)
 	{
-		public String serverName;
-		public int serverIcon;
-
-		public ServerItem(String serverName, int serverIcon)
+		if (!servers.contains(setting))
 		{
-			this.serverName = serverName;
-			this.serverIcon = serverIcon;
+			servers.add(setting);
+			loadServersList();
 		}
 	}
 
-	public class SampleAdapter extends ArrayAdapter<ServerItem>
+	public void loadServersList()
+	{
+		adapter.clear();
+		adapter.addAll(servers);
+
+		adapter.add(ServerSettings.NEW_SERVER);
+	}
+
+	public class ServerSettingsAdapter extends ArrayAdapter<ServerSettings>
 	{
 
-		public SampleAdapter(Context context)
+		public ServerSettingsAdapter(Context context)
 		{
 			super(context, 0);
 		}
@@ -53,13 +87,90 @@ public class ServerList extends ListFragment
 			{
 				convertView = LayoutInflater.from(getContext()).inflate(R.layout.row, null);
 			}
-			ImageView icon = (ImageView)convertView.findViewById(R.id.row_icon);
-			icon.setImageResource(getItem(position).serverIcon);
+			//			ImageView icon = (ImageView)convertView.findViewById(R.id.row_icon);
+			//			icon.setImageResource(getItem(position).getImage());
+
 			TextView title = (TextView)convertView.findViewById(R.id.row_title);
-			title.setText(getItem(position).serverName);
+			title.setText(getItem(position).getName());
+			title.setCompoundDrawablesWithIntrinsicBounds(getItem(position).getImage(), 0, 0, 0);
+
+			convertView.setTag(getItem(position));
+			convertView.setOnClickListener(new OnClickListener()
+			{
+
+				@Override
+				public void onClick(View v)
+				{
+					ServerSettings settings = (ServerSettings)v.getTag();
+					if (settings.equals(ServerSettings.NEW_SERVER))
+					{
+						Intent intent = new Intent(getContext(), SettingsActivity.class);
+						startActivity(intent);
+					}
+					else
+					{
+						//TODO: Open connection with server
+						Log.d("Setting: ", settings.toString());
+					}
+				}
+
+			});
 
 			return convertView;
 		}
+	}
 
+	private List<ServerSettings> read()
+	{
+		servers = new ArrayList<ServerSettings>();
+		try
+		{
+			FileInputStream fis = getActivity().openFileInput(_serverFileName);
+			BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+			String line = "";
+			while ((line = br.readLine()) != null)
+			{
+				if (!line.trim().isEmpty())
+					servers.add(new ServerSettings(line, DELIM));
+			}
+		}
+		catch (FileNotFoundException e)
+		{
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		catch (ServerSettingsException e)
+		{
+			e.printStackTrace();
+		}
+		return servers;
+	}
+
+	@SuppressWarnings("unused")
+	private void write()
+	{
+		try
+		{
+			FileOutputStream fos = getActivity().openFileOutput(_serverFileName, Context.MODE_PRIVATE);
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+			for (ServerSettings server : servers)
+			{
+				if (server.isWritable())
+				{
+					bw.write(server.toString());
+					bw.write("\r\n");
+				}
+			}
+		}
+		catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 }

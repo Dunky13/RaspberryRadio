@@ -94,7 +94,7 @@
                 android:inputType="phone"
                 android:ems="10" >
 
-                <requestFocus android:layout_height="wrap_content" />
+
             </EditText>
         </LinearLayout>
 
@@ -117,24 +117,38 @@
                 android:inputType="number"
                 android:ems="10" />
         </LinearLayout>
-        
+        <View
+            android:id="@+id/button_dividerHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="1dip"
+            android:layout_marginLeft="4dip"
+            android:layout_marginRight="4dip"
+            android:background="?android:attr/dividerHorizontal" />
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-			
+            android:layout_height="42dp" >
 			<Button
 	            android:id="@+id/settings_cancel"
 	            android:layout_width="0dp"
 	            android:layout_height="wrap_content"
-	            android:layout_weight="0.5"
-	            android:text="@string/cancel" />
+	            android:layout_weight="0.4"
+	            android:text="@string/cancel"
+	            style="?android:attr/borderlessButtonStyle" />
+			<View
+            android:id="@+id/button_dividerVertical"
+            android:layout_width="1dip"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dip"
+            android:layout_marginTop="4dip"
+            android:background="?android:attr/dividerVertical" />
 	
 	        <Button
 	            android:id="@+id/settings_save"
 	            android:layout_width="0dp"
 	            android:layout_height="wrap_content"
-	            android:layout_weight="0.5"
-	            android:text="@string/save" />
+	            android:layout_weight="0.4"
+	            android:text="@string/save"
+	            style="?android:attr/borderlessButtonStyle" />
 		</LinearLayout>
 
 </LinearLayout>
