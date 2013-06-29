@@ -13,7 +13,6 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
@@ -134,18 +133,20 @@ public class MainActivity extends SlidingFragmentActivity
 		{
 		// Respond to the action bar's Up/Home button
 		case android.R.id.home:
-			toggle();
+			getSlidingMenu().toggle(true);
 			return true;
 		case R.id.action_settings:
+//			startActivity(new Intent("com.mwent.raspberryradio.SETTINGS"));
 			intent = new Intent(this, SettingsActivity.class);
 			this.startActivity(intent);
 			return true;
 		case R.id.action_stations:
-
+			getSlidingMenu().showSecondaryMenu(true);
 			return true;
 		}
 
 		return super.onOptionsItemSelected(item);
 	}
+	
 
 }

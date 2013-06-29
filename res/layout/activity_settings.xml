@@ -1,26 +1,52 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/settings_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clickable="true"
     android:orientation="vertical"
     tools:context=".SettingsActivity" >
 
-
-        <LinearLayout
-            android:layout_width="wrap_content"
+	    <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal" >
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:paddingLeft="5dp"
+                android:text="@string/server_name" />
+
+            <EditText
+                android:id="@+id/settings_servername"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"
+                android:inputType="text"
+                android:ems="10" >
+                
+            </EditText>
+        </LinearLayout>
+    
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:paddingLeft="5dp"
                 android:text="@string/username" />
 
             <EditText
-                android:id="@+id/username"
-                android:layout_width="wrap_content"
+                android:id="@+id/settings_username"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="0.7"
                 android:inputType="text"
                 android:ems="10" >
                 
@@ -28,38 +54,44 @@
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal" >
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:paddingLeft="5dp"
                 android:text="@string/password" />
 
             <EditText
-                android:id="@+id/password"
-                android:layout_width="wrap_content"
+                android:id="@+id/settings_password"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="0.7"
                 android:inputType="textPassword"
                 android:ems="10" />
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal" >
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:paddingLeft="5dp"
                 android:text="@string/server_ip" />
 
             <EditText
-                android:id="@+id/server_ip"
-                android:layout_width="wrap_content"
+                android:id="@+id/settings_server_ip"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:inputType="number"
+                android:layout_weight="0.7"
+                android:inputType="phone"
                 android:ems="10" >
 
                 <requestFocus android:layout_height="wrap_content" />
@@ -67,20 +99,42 @@
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content" >
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:paddingLeft="5dp"
                 android:text="@string/server_port" />
 
             <EditText
-                android:id="@+id/server_port"
-                android:layout_width="wrap_content"
+                android:id="@+id/settings_server_port"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="0.7"
                 android:inputType="number"
                 android:ems="10" />
         </LinearLayout>
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+			
+			<Button
+	            android:id="@+id/settings_cancel"
+	            android:layout_width="0dp"
+	            android:layout_height="wrap_content"
+	            android:layout_weight="0.5"
+	            android:text="@string/cancel" />
+	
+	        <Button
+	            android:id="@+id/settings_save"
+	            android:layout_width="0dp"
+	            android:layout_height="wrap_content"
+	            android:layout_weight="0.5"
+	            android:text="@string/save" />
+		</LinearLayout>
 
 </LinearLayout>
