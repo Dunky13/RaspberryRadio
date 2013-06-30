@@ -8,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,8 +19,10 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.mwent.RaspberryRadio.client.AndroidClient;
 import com.mwent.RaspberryRadio.shared.CommandStationList;
 import com.mwent.raspberryradio.ClientService;
@@ -143,7 +146,7 @@ public class StationList extends ListFragment implements OnClickListener
 			//			ImageView icon = (ImageView)convertView.findViewById(R.id.row_icon);
 			//			icon.setImageResource(getItem(position).getImage());
 
-			TextView title = (TextView)convertView.findViewById(R.id.row_title);
+			Button title = (Button)convertView.findViewById(R.id.row_title);
 			title.setText(getItem(position).getName());
 			title.setCompoundDrawablesWithIntrinsicBounds(getItem(position).getImage(), 0, 0, 0);
 
