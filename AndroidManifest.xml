@@ -25,19 +25,25 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SettingsActivity"
+        <activity
+            android:name=".SettingsActivity"
+            android:excludeFromRecents="true"
             android:label="@string/settings_title"
-            android:theme="@android:style/Theme.Holo.Light.Dialog"
-            android:excludeFromRecents="true">
-				  
+            android:theme="@android:style/Theme.Holo.Light.Dialog" >
             <intent-filter>
                 <action android:name="com.mwent.raspberryradio.SETTINGS" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-            </activity>
+        </activity>
         <activity android:name=".ServerActivity" />
         <activity android:name=".SlidingTitleBar" />
+
+        <service
+            android:name=".ClientService"
+            android:enabled="true" >
+        </service>
+        
     </application>
 
 </manifest>

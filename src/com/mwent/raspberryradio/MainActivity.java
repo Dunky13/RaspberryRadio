@@ -5,17 +5,27 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 
-public class MainActivity extends SlidingFragmentActivity
+public class MainActivity extends SlidingFragmentActivity implements OnClickListener
 {
 
 	protected ListFragment mFrag;
-
+	
+	ImageButton buttonPrev, buttonStop, buttonPlay, buttonNext;
+	ImageView albumImage;
+	TextView songInfo;
+	
 	/**
 	 * The {@link ViewPager} that will host the section contents.
 	 */
@@ -30,6 +40,10 @@ public class MainActivity extends SlidingFragmentActivity
 		setContentView(R.layout.activity_main);
 		setBehindContentView(R.layout.left_frame); // left and right menu
 
+		setupPlaybackButtons();
+		
+		super.startService(new Intent(this, ClientService.class)); // Start ClientAPI service
+		
 		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
 
 		if (savedInstanceState == null)
@@ -45,7 +59,18 @@ public class MainActivity extends SlidingFragmentActivity
 		loadSliderStuff(transaction);
 
 		transaction.commit();
+	}
 
+	private void setupPlaybackButtons() {
+		buttonPrev = (ImageButton) findViewById(R.id.prev);
+		buttonStop = (ImageButton) findViewById(R.id.stop);
+		buttonPlay = (ImageButton) findViewById(R.id.play);
+		buttonNext = (ImageButton) findViewById(R.id.next);
+		
+		buttonPrev.setOnClickListener(this);
+		buttonStop.setOnClickListener(this);
+		buttonPlay.setOnClickListener(this);
+		buttonNext.setOnClickListener(this);
 	}
 
 	public void loadSliderStuff(FragmentTransaction transaction)
@@ -78,7 +103,7 @@ public class MainActivity extends SlidingFragmentActivity
 	protected void onStop()
 	{
 		super.onStop();
-
+		finish();
 	}
 
 	@Override
@@ -102,5 +127,28 @@ public class MainActivity extends SlidingFragmentActivity
 		}
 
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId())
+		{
+		case R.id.prev:
+			Log.d("PREV", ClientService.clientAPI.prev());
+//			ClientService.updatePlayInfo(v);
+			break;
+		case R.id.stop:
+			Log.d("STOP", ClientService.clientAPI.stop());
+//			ClientService.updatePlayInfo(v);
+			break;
+		case R.id.play:
+			Log.d("PLAY", ClientService.clientAPI.play());
+//			ClientService.updatePlayInfo(v);
+			break;
+		case R.id.next:
+			Log.d("NEXT", ClientService.clientAPI.next());
+//			ClientService.updatePlayInfo(v);
+			break;
+		}
 	}
 }
