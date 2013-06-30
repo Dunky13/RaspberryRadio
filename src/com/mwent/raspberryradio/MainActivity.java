@@ -170,8 +170,6 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	{
 		if (s != null)
 		{
-			if (s.trim().isEmpty())
-				return;
 			TextView song = (TextView)findViewById(R.id.song_info);
 			song.setText(s);
 		}

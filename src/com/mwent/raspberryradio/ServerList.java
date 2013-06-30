@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -32,6 +33,7 @@ public class ServerList extends ListFragment implements OnClickListener
 	private static final String _serverFileName = "servers";
 	public static final char DELIM = ';';
 	private List<ServerSettings> servers;
+	private List<Integer> lastServerId;
 	private ServerSettingsAdapter adapter;
 	public AndroidClient clientAPI;
 
@@ -47,6 +49,7 @@ public class ServerList extends ListFragment implements OnClickListener
 	{
 		super.onActivityCreated(savedInstanceState);
 		ClientService.serverList = this;
+
 		adapter = new ServerSettingsAdapter(getActivity());
 		read();
 		//		add(new ServerSettings("Radio GaGa", "192.168.43.103", 6584, "root", "Admin", ';', R.drawable.ic_action_bookmark, true));
@@ -58,15 +61,48 @@ public class ServerList extends ListFragment implements OnClickListener
 
 	public void add(ServerSettings setting)
 	{
-		if (!servers.contains(setting))
+		if (listHasSetting(servers, setting) >= 0)
 		{
-			servers.add(setting);
-			loadServersList();
-			write();
+			setting.setId(getID());
 		}
+		servers.add(setting);
+		loadServersList();
+		write();
 	}
 
 	public void replace(ServerSettings setting)
+	{
+		int pos = listHasSetting(servers, setting);
+		if (pos >= 0)
+		{
+			servers.set(pos, setting);
+			loadServersList();
+			write();
+			return;
+		}
+		add(setting);
+	}
+
+	public void remove(ServerSettings setting)
+	{
+		int pos = listHasSetting(servers, setting);
+		if (pos >= 0)
+		{
+			servers.remove(pos);
+			loadServersList();
+			write();
+			return;
+		}
+
+	}
+
+	private int getID()
+	{
+		Collections.sort(lastServerId);
+		return lastServerId.get(lastServerId.size() - 1) + 1;
+	}
+
+	private int listHasSetting(List<ServerSettings> list, ServerSettings setting)
 	{
 		ServerSettings orig;
 		for (int i = 0; i < servers.size(); i++)
@@ -74,30 +110,10 @@ public class ServerList extends ListFragment implements OnClickListener
 			orig = servers.get(i);
 			if (orig.equals(setting))
 			{
-				servers.set(i, setting);
-				loadServersList();
-				write();
-				return;
+				return i;
 			}
 		}
-		add(setting);
-	}
-
-	public void remove(ServerSettings settings)
-	{
-		ServerSettings orig;
-		for (int i = 0; i < servers.size(); i++)
-		{
-			orig = servers.get(i);
-			if (orig.equals(settings))
-			{
-				servers.remove(i);
-				loadServersList();
-				write();
-				return;
-			}
-		}
-
+		return -1;
 	}
 
 	public void loadServersList()
@@ -148,7 +164,9 @@ public class ServerList extends ListFragment implements OnClickListener
 
 	private List<ServerSettings> read()
 	{
+
 		servers = new ArrayList<ServerSettings>();
+		lastServerId = new ArrayList<Integer>();
 		try
 		{
 			FileInputStream fis = getActivity().openFileInput(_serverFileName);
@@ -157,7 +175,20 @@ public class ServerList extends ListFragment implements OnClickListener
 			while ((line = br.readLine()) != null)
 			{
 				if (!line.trim().isEmpty())
-					servers.add(new ServerSettings(line, DELIM));
+				{
+					ServerSettings setting = new ServerSettings(line, DELIM);
+					if (lastServerId.contains(setting.getId()))
+					{
+						int last = getID();
+						setting.setId(last);
+						lastServerId.add(last);
+					}
+					else
+					{
+						lastServerId.add(setting.getId());
+					}
+					servers.add(setting);
+				}
 			}
 		}
 		catch (FileNotFoundException e)

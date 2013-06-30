@@ -7,6 +7,13 @@
     android:orientation="vertical"
     tools:context=".SettingsActivity" >
 
+    <TextView
+        android:id="@+id/settings_server_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+    </TextView>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -25,7 +32,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="0.7"
             android:ems="10"
-            android:inputType="text" >
+            android:inputType="textCapWords" >
         </EditText>
     </LinearLayout>
 
