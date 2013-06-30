@@ -20,7 +20,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.mwent.RaspberryRadio.client.AndroidClient;
 import com.mwent.RaspberryRadio.shared.CommandStationList;
 import com.mwent.raspberryradio.ClientService;
 import com.mwent.raspberryradio.R;
@@ -32,7 +31,6 @@ public class StationList extends ListFragment implements OnClickListener
 	private List<StationSettings> _stations;
 	private List<Integer> stationsIds;
 	private ServerSettingsAdapter adapter;
-	public AndroidClient clientAPI;
 
 	ImageView albumImage;
 	TextView songInfo;
@@ -56,37 +54,23 @@ public class StationList extends ListFragment implements OnClickListener
 
 	public void add(StationSettings setting)
 	{
-		if (listHasSetting(_stations, setting) >= 0)
-		{
-			setting.setId(getID());
-		}
+		setting.setId(getID());
 		_stations.add(setting);
-		loadStationList();
+		ClientService.clientAPI.add(setting.getIp());
+		firstLoadStationList();
 		//		write();
-	}
-
-	public void replace(StationSettings setting)
-	{
-		int pos = listHasSetting(_stations, setting);
-		if (pos >= 0)
-		{
-			_stations.set(pos, setting);
-			loadStationList();
-			//			write();
-			return;
-		}
-		add(setting);
 	}
 
 	public void remove(StationSettings setting)
 	{
+
 		int pos = listHasSetting(_stations, setting);
 		if (pos >= 0)
 		{
 			stationsIds.remove((Object)pos);
 			_stations.remove(pos);
-			loadStationList();
-			//			write();
+			ClientService.clientAPI.removeStation(setting.getPos());
+			firstLoadStationList();
 			return;
 		}
 
@@ -140,8 +124,6 @@ public class StationList extends ListFragment implements OnClickListener
 			{
 				convertView = LayoutInflater.from(getContext()).inflate(R.layout.row, null);
 			}
-			//			ImageView icon = (ImageView)convertView.findViewById(R.id.row_icon);
-			//			icon.setImageResource(getItem(position).getImage());
 
 			TextView title = (TextView)convertView.findViewById(R.id.row_title);
 			title.setText(getItem(position).getName());
@@ -175,7 +157,8 @@ public class StationList extends ListFragment implements OnClickListener
 
 		for (CommandStationList station : stations)
 		{
-			StationSettings setting = new StationSettings(0, station.getName(), station.getHost(), station.getPos(), DELIM);
+			String name = station.getName().trim().isEmpty() ? station.getHost() : station.getName();
+			StationSettings setting = new StationSettings(0, name, station.getHost(), station.getPos(), DELIM);
 			if (stationsIds.contains(setting.getId()))
 			{
 				int last = getID();

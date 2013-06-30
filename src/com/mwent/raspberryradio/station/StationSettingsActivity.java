@@ -24,11 +24,6 @@ public class StationSettingsActivity extends Activity implements OnClickListener
 		super.onCreate(b);
 		setContentView(R.layout.activity_station_settings);
 
-		if (ClientService.stationSettings != null)
-		{
-			fillSettings();
-		}
-
 		cancel = (Button)findViewById(R.id.settings_station_cancel);
 		cancel.setOnClickListener(this);
 
@@ -37,11 +32,16 @@ public class StationSettingsActivity extends Activity implements OnClickListener
 
 		delete = (Button)findViewById(R.id.settings_station_delete);
 		delete.setOnClickListener(this);
+
+		if (ClientService.stationSettings != null)
+			fillSettings();
+
 	}
 
 	private void fillSettings()
 	{
 		TextView id = (TextView)findViewById(R.id.settings_station_id);
+		TextView pos = (TextView)findViewById(R.id.settings_station_pos);
 		EditText serverName = (EditText)findViewById(R.id.settings_station_name);
 		EditText serverIp = (EditText)findViewById(R.id.settings_station_ip);
 
@@ -50,11 +50,17 @@ public class StationSettingsActivity extends Activity implements OnClickListener
 			id.setText(ClientService.stationSettings.getId() + "");
 			serverName.setText(ClientService.stationSettings.getName());
 			serverIp.setText(ClientService.stationSettings.getIp());
+			pos.setText(ClientService.stationSettings.getPos() + "");
 		}
 		else
 		{
+			delete.setVisibility(View.GONE);
+			save.setVisibility(View.VISIBLE);
+			serverIp.setEnabled(true);
+			serverIp.requestFocus();
 			id.setText("");
-			serverName.setText("");
+			pos.setText("");
+			serverName.setText("New Server");
 			serverIp.setText("");
 		}
 	}
@@ -62,41 +68,13 @@ public class StationSettingsActivity extends Activity implements OnClickListener
 	@Override
 	public void onClick(View v)
 	{
-		String name, ip;
-		int id, pos;
-		StationSettings setting;
 		switch (v.getId())
 		{
 		case R.id.settings_station_cancel:
 			finish();
 			return;
 		case R.id.settings_station_save:
-			try
-			{
-				id = Integer.parseInt(((TextView)findViewById(R.id.settings_station_id)).getText().toString());
-			}
-			catch (NumberFormatException e)
-			{
-				id = -1;
-			}
-			try
-			{
-				pos = Integer.parseInt(((TextView)findViewById(R.id.settings_station_pos)).getText().toString());
-			}
-			catch (NumberFormatException e)
-			{
-				pos = -1;
-			}
-			name = ((EditText)findViewById(R.id.settings_station_name)).getText().toString();
-			ip = ((EditText)findViewById(R.id.settings_station_ip)).getText().toString();
-			setting = new StationSettings(id, name, ip, pos, StationList.DELIM);
-			if (id < 0)
-			{
-				setting.setId(0);
-				ClientService.stationList.add(setting);
-			}
-			else
-				ClientService.stationList.replace(setting);
+			saveStation();
 			finish();
 			return;
 		case R.id.settings_station_delete:
@@ -104,6 +82,33 @@ public class StationSettingsActivity extends Activity implements OnClickListener
 			finish();
 			return;
 		}
+	}
+
+	private void saveStation()
+	{
+		String name, ip;
+		int id, pos;
+		StationSettings setting;
+		try
+		{
+			id = Integer.parseInt(((TextView)findViewById(R.id.settings_station_id)).getText().toString());
+		}
+		catch (NumberFormatException e)
+		{
+			id = -1;
+		}
+		try
+		{
+			pos = Integer.parseInt(((TextView)findViewById(R.id.settings_station_pos)).getText().toString());
+		}
+		catch (NumberFormatException e)
+		{
+			pos = -1;
+		}
+		name = ((EditText)findViewById(R.id.settings_station_name)).getText().toString();
+		ip = ((EditText)findViewById(R.id.settings_station_ip)).getText().toString();
+		setting = new StationSettings(id, name, ip, pos, StationList.DELIM);
+		ClientService.stationList.add(setting);
 	}
 
 	private void showDeleteAlert()

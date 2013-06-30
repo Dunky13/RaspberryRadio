@@ -35,7 +35,7 @@ public class StationSettings
 		_pos = pos;
 		_DELIM = delim;
 
-		_image = R.drawable.ic_action_bookmark;
+		_image = R.drawable.ic_action_record;
 		setWritable(true);
 	}
 

@@ -11,14 +11,14 @@
         android:id="@+id/settings_station_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone">
+        android:visibility="gone" >
     </TextView>
-    
+
     <TextView
         android:id="@+id/settings_station_pos"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone">
+        android:visibility="gone" >
     </TextView>
 
     <LinearLayout
@@ -39,9 +39,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="0.7"
             android:ems="10"
-            android:inputType="textCapWords" >
+            android:enabled="false"
+            android:inputType="text" >
         </EditText>
-    </LinearLayout>    
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -61,7 +62,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="0.7"
             android:ems="10"
-            android:inputType="textUri" >
+            android:enabled="false"
+            android:inputType="none" >
         </EditText>
     </LinearLayout>
 
@@ -78,15 +80,15 @@
         android:layout_height="42dp" >
 
         <Button
-            android:id="@+id/settings_station_save"
+            android:id="@+id/settings_station_cancel"
             style="?android:attr/borderlessButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/save" />
+            android:text="@string/cancel" />
 
         <View
-            android:id="@+id/button_dividerVertical"
+            android:id="@+id/button_dividerVertical2"
             android:layout_width="1dip"
             android:layout_height="wrap_content"
             android:layout_marginBottom="4dip"
@@ -100,22 +102,15 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/delete" />
-
-        <View
-            android:id="@+id/button_dividerVertical2"
-            android:layout_width="1dip"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="4dip"
-            android:layout_marginTop="4dip"
-            android:background="?android:attr/dividerVertical" />
-
         <Button
-            android:id="@+id/settings_station_cancel"
+            android:id="@+id/settings_station_save"
             style="?android:attr/borderlessButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/cancel" />
+            android:visibility="gone"
+            android:text="@string/save" />
+        
     </LinearLayout>
 
 </LinearLayout>
