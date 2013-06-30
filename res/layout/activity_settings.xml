@@ -7,148 +7,164 @@
     android:orientation="vertical"
     tools:context=".SettingsActivity" >
 
-	    <LinearLayout
-            android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
+            android:layout_weight="0.3"
+            android:paddingLeft="5dp"
+            android:text="@string/server_name" />
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.3"
-                android:paddingLeft="5dp"
-                android:text="@string/server_name" />
-
-            <EditText
-                android:id="@+id/settings_servername"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.7"
-                android:inputType="text"
-                android:ems="10" >
-                
-            </EditText>
-        </LinearLayout>
-    
-        <LinearLayout
-            android:layout_width="match_parent"
+        <EditText
+            android:id="@+id/settings_servername"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
+            android:layout_weight="0.7"
+            android:ems="10"
+            android:inputType="text" >
+        </EditText>
+    </LinearLayout>
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.3"
-                android:paddingLeft="5dp"
-                android:text="@string/username" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
 
-            <EditText
-                android:id="@+id/settings_username"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.7"
-                android:inputType="text"
-                android:ems="10" >
-                
-            </EditText>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
+            android:layout_weight="0.3"
+            android:paddingLeft="5dp"
+            android:text="@string/username" />
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.3"
-                android:paddingLeft="5dp"
-                android:text="@string/password" />
-
-            <EditText
-                android:id="@+id/settings_password"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.7"
-                android:inputType="textPassword"
-                android:ems="10" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <EditText
+            android:id="@+id/settings_username"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
+            android:layout_weight="0.7"
+            android:ems="10"
+            android:inputType="text" >
+        </EditText>
+    </LinearLayout>
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.3"
-                android:paddingLeft="5dp"
-                android:text="@string/server_ip" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
 
-            <EditText
-                android:id="@+id/settings_server_ip"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.7"
-                android:inputType="textUri"
-                android:ems="10" >
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.3"
+            android:paddingLeft="5dp"
+            android:text="@string/password" />
 
+        <EditText
+            android:id="@+id/settings_password"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.7"
+            android:ems="10"
+            android:inputType="textPassword" />
+    </LinearLayout>
 
-            </EditText>
-        </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.3"
+            android:paddingLeft="5dp"
+            android:text="@string/server_ip" />
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.3"
-                android:paddingLeft="5dp"
-                android:text="@string/server_port" />
+        <EditText
+            android:id="@+id/settings_server_ip"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.7"
+            android:ems="10"
+            android:inputType="textUri" >
+        </EditText>
+    </LinearLayout>
 
-            <EditText
-                android:id="@+id/settings_server_port"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.7"
-                android:inputType="number"
-                android:ems="10" />
-        </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.3"
+            android:paddingLeft="5dp"
+            android:text="@string/server_port" />
+
+        <EditText
+            android:id="@+id/settings_server_port"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.7"
+            android:ems="10"
+            android:inputType="number" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/button_dividerHorizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="1dip"
+        android:layout_marginLeft="4dip"
+        android:layout_marginRight="4dip"
+        android:background="?android:attr/dividerHorizontal" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="42dp" >
+
+        <Button
+            android:id="@+id/settings_save"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/save" />
+
         <View
-            android:id="@+id/button_dividerHorizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="1dip"
-            android:layout_marginLeft="4dip"
-            android:layout_marginRight="4dip"
-            android:background="?android:attr/dividerHorizontal" />
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="42dp" >
-			<Button
-	            android:id="@+id/settings_cancel"
-	            android:layout_width="0dp"
-	            android:layout_height="wrap_content"
-	            android:layout_weight="0.4"
-	            android:text="@string/cancel"
-	            style="?android:attr/borderlessButtonStyle" />
-			<View
             android:id="@+id/button_dividerVertical"
             android:layout_width="1dip"
             android:layout_height="wrap_content"
             android:layout_marginBottom="4dip"
             android:layout_marginTop="4dip"
             android:background="?android:attr/dividerVertical" />
-	
-	        <Button
-	            android:id="@+id/settings_save"
-	            android:layout_width="0dp"
-	            android:layout_height="wrap_content"
-	            android:layout_weight="0.4"
-	            android:text="@string/save"
-	            style="?android:attr/borderlessButtonStyle" />
-		</LinearLayout>
+
+        <Button
+            android:id="@+id/settings_delete"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/delete" />
+
+        <View
+            android:id="@+id/button_dividerVertical2"
+            android:layout_width="1dip"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dip"
+            android:layout_marginTop="4dip"
+            android:background="?android:attr/dividerVertical" />
+
+        <Button
+            android:id="@+id/settings_cancel"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/cancel" />
+    </LinearLayout>
 
 </LinearLayout>

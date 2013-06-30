@@ -2,10 +2,11 @@ package com.mwent.raspberryradio;
 
 public class ServerSettings
 {
+	public static final int DEFAULT_PORT = 6584;
 	public static final ServerSettings NEW_SERVER = new ServerSettings(
 		"New Server",
 		"",
-		6584,
+		DEFAULT_PORT,
 		"",
 		"",
 		';',
@@ -28,6 +29,13 @@ public class ServerSettings
 
 	public ServerSettings(String line, char delim) throws ServerSettingsException
 	{
+		/*
+		 * 0 = Name
+		 * 1 = Host
+		 * 2 = Port
+		 * 3 = User
+		 * 4 = Pass
+		 */
 		_DELIM = delim;
 		String[] split = line.split(_DELIM + "");
 		if (split.length < 5)
@@ -36,17 +44,30 @@ public class ServerSettings
 			throw new ServerSettingsException("Too much arguments for the line: " + line);
 		setName(split[0]);
 		_ip = split[1];
-		_username = split[2];
-		_password = split[3];
+		_username = split[3];
+		_password = split[4];
 
 		try
 		{
-			_port = Integer.parseInt(split[4]);
+			_port = Integer.parseInt(split[2]);
 		}
 		catch (NumberFormatException e)
 		{
-			_port = 6584;
+			_port = DEFAULT_PORT;
 		}
+
+		_image = R.drawable.ic_action_bookmark;
+		setWritable(true);
+	}
+
+	public ServerSettings(String name, String ip, int port, String username, String password, char delim)
+	{
+		_name = name;
+		_ip = ip;
+		_port = port;
+		_username = username;
+		_password = password;
+		_DELIM = delim;
 
 		_image = R.drawable.ic_action_bookmark;
 		setWritable(true);
@@ -151,7 +172,7 @@ public class ServerSettings
 	public boolean equals(Object obj)
 	{
 		ServerSettings other = (ServerSettings)obj;
-		return this.getName().equals(other.getName()) && this.getIp().equals(other.getIp());
+		return this.getName().equals(other.getName());
 	}
 
 	public class ServerSettingsException extends Exception

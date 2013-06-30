@@ -10,10 +10,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -28,10 +30,9 @@ import com.mwent.raspberryradio.ServerSettings.ServerSettingsException;
 public class ServerList extends ListFragment implements OnClickListener
 {
 	private static final String _serverFileName = "servers";
-	private static final char DELIM = ';';
+	public static final char DELIM = ';';
 	private List<ServerSettings> servers;
 	private ServerSettingsAdapter adapter;
-	private ServerList _this;
 	public AndroidClient clientAPI;
 
 	ImageView albumImage;
@@ -45,20 +46,11 @@ public class ServerList extends ListFragment implements OnClickListener
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
-		this._this = this;
+		ClientService.serverList = this;
 		adapter = new ServerSettingsAdapter(getActivity());
 		read();
-		servers.add(new ServerSettings(
-			"Radio GaGa",
-			"192.168.43.103",
-			6584,
-			"root",
-			"Admin",
-			';',
-			R.drawable.ic_action_bookmark,
-			true));
-		servers
-			.add(new ServerSettings("Radio Marc", "mwent.info", 6584, "root", "Admin", ';', R.drawable.ic_action_bookmark, true));
+		//		add(new ServerSettings("Radio GaGa", "192.168.43.103", 6584, "root", "Admin", ';', R.drawable.ic_action_bookmark, true));
+		//		add(new ServerSettings("Radio Marc", "mwent.info", 6584, "root", "Admin", ';', R.drawable.ic_action_bookmark, true));
 		loadServersList();
 
 		setListAdapter(adapter);
@@ -70,7 +62,42 @@ public class ServerList extends ListFragment implements OnClickListener
 		{
 			servers.add(setting);
 			loadServersList();
+			write();
 		}
+	}
+
+	public void replace(ServerSettings setting)
+	{
+		ServerSettings orig;
+		for (int i = 0; i < servers.size(); i++)
+		{
+			orig = servers.get(i);
+			if (orig.equals(setting))
+			{
+				servers.set(i, setting);
+				loadServersList();
+				write();
+				return;
+			}
+		}
+		add(setting);
+	}
+
+	public void remove(ServerSettings settings)
+	{
+		ServerSettings orig;
+		for (int i = 0; i < servers.size(); i++)
+		{
+			orig = servers.get(i);
+			if (orig.equals(settings))
+			{
+				servers.remove(i);
+				loadServersList();
+				write();
+				return;
+			}
+		}
+
 	}
 
 	public void loadServersList()
@@ -103,7 +130,7 @@ public class ServerList extends ListFragment implements OnClickListener
 			title.setCompoundDrawablesWithIntrinsicBounds(getItem(position).getImage(), 0, 0, 0);
 
 			convertView.setTag(getItem(position));
-			convertView.setOnClickListener(_this);
+			convertView.setOnClickListener(ClientService.serverList);
 			convertView.setOnLongClickListener(new OnLongClickListener()
 			{
 				@Override
@@ -147,21 +174,24 @@ public class ServerList extends ListFragment implements OnClickListener
 		return servers;
 	}
 
-	@SuppressWarnings("unused")
-	private void write()
+	public void write()
 	{
 		try
 		{
 			FileOutputStream fos = getActivity().openFileOutput(_serverFileName, Context.MODE_PRIVATE);
+
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
 			for (ServerSettings server : servers)
 			{
+				Log.d(server.getName(), server.isWritable() + "");
 				if (server.isWritable())
 				{
 					bw.write(server.toString());
 					bw.write("\r\n");
 				}
 			}
+			bw.close();
+			fos.close();
 		}
 		catch (FileNotFoundException e)
 		{
@@ -184,7 +214,7 @@ public class ServerList extends ListFragment implements OnClickListener
 			ClientService.clientAPI.disconnect();
 		}
 
-		if (settings.equals(ServerSettings.NEW_SERVER))
+		if (settings == ServerSettings.NEW_SERVER)
 		{
 			startActivity(new Intent(getActivity(), SettingsActivity.class));
 		}
@@ -192,10 +222,30 @@ public class ServerList extends ListFragment implements OnClickListener
 		{
 			ClientService.settings = settings;
 			ClientService.clientAPI = new AndroidClient(settings.getIp(), settings.getPort());
-			ClientService.clientAPI.connect(settings.getUsername(), settings.getPassword());
+			try
+			{
+				ClientService.clientAPI.connect(settings.getUsername(), settings.getPassword());
+			}
+			catch (Exception e)
+			{
+				showLoginErrorAlert(e.getMessage());
+				return;
+			}
 
-			if (ClientService.main != null)
-				ClientService.main.toggle();
+			if (ClientService.mainActivity != null)
+			{
+				ClientService.mainActivity.toggle();
+				ClientService.mainActivity.setSongText(ClientService.clientAPI.getUpdate());
+			}
+
 		}
+	}
+
+	private void showLoginErrorAlert(String message)
+	{
+		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ClientService.mainActivity);
+		alertDialogBuilder.setTitle("Connection did not succeed");
+		alertDialogBuilder.setMessage(message).setCancelable(false).setPositiveButton("Ok", null);
+		alertDialogBuilder.create().show();
 	}
 }

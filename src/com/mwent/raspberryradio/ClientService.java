@@ -8,7 +8,8 @@ import com.mwent.RaspberryRadio.client.AndroidClient;
 public class ClientService extends Service
 {
 
-	static MainActivity main;
+	static MainActivity mainActivity;
+	static ServerList serverList;
 	static AndroidClient clientAPI;
 	public static ServerSettings settings;
 

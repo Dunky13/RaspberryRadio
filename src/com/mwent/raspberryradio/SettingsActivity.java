@@ -53,12 +53,20 @@ public class SettingsActivity extends Activity implements OnClickListener
 		{
 		case R.id.settings_cancel:
 			finish();
+			return;
 		case R.id.settings_save:
-			//TODO: Write server list to file
-			//			Intent i = new Intent(this, ServerList.class);
-			//			startActivity(i);
+			String name = ((EditText)findViewById(R.id.settings_servername)).getText().toString();
+			String username = ((EditText)findViewById(R.id.settings_username)).getText().toString();
+			String password = ((EditText)findViewById(R.id.settings_password)).getText().toString();
+			String ip = ((EditText)findViewById(R.id.settings_server_ip)).getText().toString();
+			int port = Integer.parseInt(((EditText)findViewById(R.id.settings_server_port)).getText().toString());
+			ServerSettings setting = new ServerSettings(name, ip, port, username, password, ServerList.DELIM);
+			ClientService.serverList.replace(setting);
+			finish();
+			return;
+		case R.id.settings_delete:
+
 			return;
 		}
 	}
-
 }

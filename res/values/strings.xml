@@ -20,5 +20,6 @@
 	<string name="server_port">Server Port</string>
 	<string name="cancel">Cancel</string>
 	<string name="save">Save</string>
+	<string name="delete">Delete</string>
 	<string name="song_name">No Song is currently playing</string>
 </resources>

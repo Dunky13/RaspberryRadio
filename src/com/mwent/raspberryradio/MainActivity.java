@@ -47,7 +47,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 
 		super.startService(new Intent(this, ClientService.class)); // Start ClientAPI service
 
-		ClientService.main = this;
+		ClientService.mainActivity = this;
 
 		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
 
@@ -64,8 +64,6 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		loadSliderStuff(transaction);
 
 		transaction.commit();
-
-		toggle();
 	}
 
 	private void setupPlaybackButtons()
@@ -98,6 +96,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 
 		transaction.replace(R.id.left_frame, new ServerList()); //LEFT
 		transaction.replace(R.id.right_frame, new StationList()); //RIGHT
+
 	}
 
 	@Override
@@ -164,8 +163,18 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 
 		showAlbumImage();
 
-		TextView song = (TextView)findViewById(R.id.song_info);
-		song.setText(s);
+		setSongText(s);
+	}
+
+	public void setSongText(String s)
+	{
+		if (s != null)
+		{
+			if (s.trim().isEmpty())
+				return;
+			TextView song = (TextView)findViewById(R.id.song_info);
+			song.setText(s);
+		}
 	}
 
 	private void showNoConnectionAlert()
