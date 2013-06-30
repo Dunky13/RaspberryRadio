@@ -22,4 +22,6 @@
 	<string name="save">Save</string>
 	<string name="delete">Delete</string>
 	<string name="song_name">No Song is currently playing</string>
+	<string name="station_name">Station Name</string>
+	<string name="station_ip">Station IP</string>
 </resources>

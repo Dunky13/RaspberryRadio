@@ -26,7 +26,18 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SettingsActivity"
+            android:name="com.mwent.raspberryradio.server.ServerSettingsActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/settings_title"
+            android:theme="@android:style/Theme.Holo.Light.Dialog" >
+            <intent-filter>
+                <action android:name="com.mwent.raspberryradio.SETTINGS" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+         <activity
+            android:name="com.mwent.raspberryradio.station.StationSettingsActivity"
             android:excludeFromRecents="true"
             android:label="@string/settings_title"
             android:theme="@android:style/Theme.Holo.Light.Dialog" >

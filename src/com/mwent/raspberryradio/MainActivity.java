@@ -18,6 +18,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
+import com.mwent.raspberryradio.server.ServerList;
+import com.mwent.raspberryradio.server.ServerSettingsActivity;
+import com.mwent.raspberryradio.station.StationList;
 
 public class MainActivity extends SlidingFragmentActivity implements OnClickListener
 {
@@ -125,7 +128,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 			return true;
 		case R.id.action_settings:
 			//			startActivity(new Intent("com.mwent.raspberryradio.SETTINGS"));
-			intent = new Intent(this, SettingsActivity.class);
+			intent = new Intent(this, ServerSettingsActivity.class);
 			this.startActivity(intent);
 			return true;
 		case R.id.action_stations:

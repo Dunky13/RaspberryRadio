@@ -1,4 +1,4 @@
-package com.mwent.raspberryradio;
+package com.mwent.raspberryradio.server;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -25,7 +25,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.mwent.RaspberryRadio.client.AndroidClient;
-import com.mwent.raspberryradio.ServerSettings.ServerSettingsException;
+import com.mwent.raspberryradio.ClientService;
+import com.mwent.raspberryradio.R;
+import com.mwent.raspberryradio.server.ServerSettings.ServerSettingsException;
 
 public class ServerList extends ListFragment implements OnClickListener
 {
@@ -51,8 +53,6 @@ public class ServerList extends ListFragment implements OnClickListener
 
 		adapter = new ServerSettingsAdapter(getActivity());
 		read();
-		//		add(new ServerSettings("Radio GaGa", "192.168.43.103", 6584, "root", "Admin", ';', R.drawable.ic_action_bookmark, true));
-		//		add(new ServerSettings("Radio Marc", "mwent.info", 6584, "root", "Admin", ';', R.drawable.ic_action_bookmark, true));
 		loadServersList();
 
 		setListAdapter(adapter);
@@ -152,8 +152,8 @@ public class ServerList extends ListFragment implements OnClickListener
 				@Override
 				public boolean onLongClick(View v)
 				{
-					ClientService.settings = (ServerSettings)v.getTag();
-					startActivity(new Intent(getActivity(), SettingsActivity.class));
+					ClientService.serverSettings = (ServerSettings)v.getTag();
+					startActivity(new Intent(getActivity(), ServerSettingsActivity.class));
 					return false;
 				}
 			});
@@ -162,7 +162,7 @@ public class ServerList extends ListFragment implements OnClickListener
 		}
 	}
 
-	private List<ServerSettings> read()
+	private void read()
 	{
 
 		servers = new ArrayList<ServerSettings>();
@@ -202,10 +202,9 @@ public class ServerList extends ListFragment implements OnClickListener
 		{
 			e.printStackTrace();
 		}
-		return servers;
 	}
 
-	public void write()
+	private void write()
 	{
 		try
 		{
@@ -214,7 +213,6 @@ public class ServerList extends ListFragment implements OnClickListener
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
 			for (ServerSettings server : servers)
 			{
-				//				Log.d(server.getName(), server.isWritable() + "");
 				if (server.isWritable())
 				{
 					bw.write(server.toString());
@@ -241,18 +239,18 @@ public class ServerList extends ListFragment implements OnClickListener
 
 		if (ClientService.clientAPI != null)
 		{
-			ClientService.settings = null;
+			ClientService.serverSettings = null;
 			ClientService.clientAPI.disconnect();
 		}
 
 		if (settings == ServerSettings.NEW_SERVER)
 		{
-			ClientService.settings = ServerSettings.NEW_SERVER;
-			startActivity(new Intent(getActivity(), SettingsActivity.class));
+			ClientService.serverSettings = ServerSettings.NEW_SERVER;
+			startActivity(new Intent(getActivity(), ServerSettingsActivity.class));
 		}
 		else
 		{
-			ClientService.settings = settings;
+			ClientService.serverSettings = settings;
 			ClientService.clientAPI = new AndroidClient(settings.getIp(), settings.getPort());
 			try
 			{
@@ -264,6 +262,7 @@ public class ServerList extends ListFragment implements OnClickListener
 				return;
 			}
 
+			ClientService.stationList.firstLoadStationList();
 			if (ClientService.mainActivity != null)
 			{
 				ClientService.mainActivity.toggle();

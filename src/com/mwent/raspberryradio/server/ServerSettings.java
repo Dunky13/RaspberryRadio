@@ -1,4 +1,6 @@
-package com.mwent.raspberryradio;
+package com.mwent.raspberryradio.server;
+
+import com.mwent.raspberryradio.R;
 
 public class ServerSettings
 {

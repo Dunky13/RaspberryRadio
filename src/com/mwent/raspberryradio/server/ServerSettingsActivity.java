@@ -1,4 +1,4 @@
-package com.mwent.raspberryradio;
+package com.mwent.raspberryradio.server;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -10,8 +10,10 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import com.mwent.raspberryradio.ClientService;
+import com.mwent.raspberryradio.R;
 
-public class SettingsActivity extends Activity implements OnClickListener
+public class ServerSettingsActivity extends Activity implements OnClickListener
 {
 
 	Button cancel, save, delete;
@@ -20,10 +22,10 @@ public class SettingsActivity extends Activity implements OnClickListener
 	public void onCreate(Bundle b)
 	{
 		super.onCreate(b);
-		setContentView(R.layout.activity_settings);
+		setContentView(R.layout.activity_server_settings);
 		//		findViewById(R.id.settings_layout).clearFocus();
 
-		if (ClientService.settings != null)
+		if (ClientService.serverSettings != null)
 		{
 			fillSettings();
 		}
@@ -47,14 +49,14 @@ public class SettingsActivity extends Activity implements OnClickListener
 		EditText serverIp = (EditText)findViewById(R.id.settings_server_ip);
 		EditText serverPort = (EditText)findViewById(R.id.settings_server_port);
 
-		if (ClientService.settings != ServerSettings.NEW_SERVER)
+		if (ClientService.serverSettings != ServerSettings.NEW_SERVER)
 		{
-			id.setText(ClientService.settings.getId() + "");
-			serverName.setText(ClientService.settings.getName());
-			username.setText(ClientService.settings.getUsername());
-			password.setText(ClientService.settings.getPassword());
-			serverIp.setText(ClientService.settings.getIp());
-			serverPort.setText(ClientService.settings.getPort() + "");
+			id.setText(ClientService.serverSettings.getId() + "");
+			serverName.setText(ClientService.serverSettings.getName());
+			username.setText(ClientService.serverSettings.getUsername());
+			password.setText(ClientService.serverSettings.getPassword());
+			serverIp.setText(ClientService.serverSettings.getIp());
+			serverPort.setText(ClientService.serverSettings.getPort() + "");
 		}
 		else
 		{
