@@ -16,7 +16,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -88,6 +87,7 @@ public class ServerList extends ListFragment implements OnClickListener
 		int pos = listHasSetting(servers, setting);
 		if (pos >= 0)
 		{
+			lastServerId.remove((Object)pos);
 			servers.remove(pos);
 			loadServersList();
 			write();
@@ -214,7 +214,7 @@ public class ServerList extends ListFragment implements OnClickListener
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
 			for (ServerSettings server : servers)
 			{
-				Log.d(server.getName(), server.isWritable() + "");
+				//				Log.d(server.getName(), server.isWritable() + "");
 				if (server.isWritable())
 				{
 					bw.write(server.toString());
@@ -247,6 +247,7 @@ public class ServerList extends ListFragment implements OnClickListener
 
 		if (settings == ServerSettings.NEW_SERVER)
 		{
+			ClientService.settings = ServerSettings.NEW_SERVER;
 			startActivity(new Intent(getActivity(), SettingsActivity.class));
 		}
 		else
