@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,16 +22,19 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import com.mwent.RaspberryRadio.client.AndroidClient;
 import com.mwent.raspberryradio.ServerSettings.ServerSettingsException;
 
-public class ServerList extends ListFragment
+public class ServerList extends ListFragment implements OnClickListener
 {
 	private static final String _serverFileName = "servers";
 	private static final char DELIM = ';';
 	private List<ServerSettings> servers;
-
 	private ServerSettingsAdapter adapter;
-
+	private ServerList _this;
+	private AndroidClient clientAPI;
+	
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		return inflater.inflate(R.layout.list, null);
@@ -39,18 +43,18 @@ public class ServerList extends ListFragment
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
+		this._this = this;
 		adapter = new ServerSettingsAdapter(getActivity());
-
 		read();
 		servers.add(new ServerSettings(
-			"Test server 1",
-			"192.168.0.100",
-			6584,
-			"root",
-			"ww",
-			';',
-			R.drawable.ic_action_bookmark,
-			true));
+				"Test server 1",
+				"192.168.1.89",
+				6584,
+				"root",
+				"Admin",
+				';',
+				R.drawable.ic_action_bookmark,
+				true));
 		loadServersList();
 
 		setListAdapter(adapter);
@@ -95,26 +99,7 @@ public class ServerList extends ListFragment
 			title.setCompoundDrawablesWithIntrinsicBounds(getItem(position).getImage(), 0, 0, 0);
 
 			convertView.setTag(getItem(position));
-			convertView.setOnClickListener(new OnClickListener()
-			{
-
-				@Override
-				public void onClick(View v)
-				{
-					ServerSettings settings = (ServerSettings)v.getTag();
-					if (settings.equals(ServerSettings.NEW_SERVER))
-					{
-						Intent intent = new Intent(getContext(), SettingsActivity.class);
-						startActivity(intent);
-					}
-					else
-					{
-						//TODO: Open connection with server
-						Log.d("Setting: ", settings.toString());
-					}
-				}
-
-			});
+			convertView.setOnClickListener(_this);
 
 			return convertView;
 		}
@@ -171,6 +156,28 @@ public class ServerList extends ListFragment
 		catch (IOException e)
 		{
 			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void onClick(View v) {
+		ServerSettings settings = (ServerSettings)v.getTag();
+		if (settings.equals(ServerSettings.NEW_SERVER)) {
+			startActivity(new Intent(getActivity(), SettingsActivity.class));
+		} else {
+			//TODO: Open connection with server
+			Log.d("Setting: ", settings.toString());
+			clientAPI = new AndroidClient(settings.getIp(), settings.getPort());
+			clientAPI.connect(settings.getUsername(), settings.getPassword());
+			clientAPI.play();
+			try {
+				Thread.sleep(30000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}                                                  
+			clientAPI.stop();
+			clientAPI.disconnect();
 		}
 	}
 }
