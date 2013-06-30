@@ -255,6 +255,7 @@ public class ServerList extends ListFragment implements OnClickListener
 		{
 			ClientService.serverSettings = settings;
 			ClientService.clientAPI = new AndroidClient(settings.getIp(), settings.getPort());
+			ClientService.clientAPI.enableAlbumCovers();
 			try
 			{
 				ClientService.clientAPI.connect(settings.getUsername(), settings.getPassword());

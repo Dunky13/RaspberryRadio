@@ -22,11 +22,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-<<<<<<< HEAD
-=======
-
-import com.mwent.RaspberryRadio.client.AndroidClient;
->>>>>>> 47c6a3901efe141624bdf878a39b7a5587dcf877
 import com.mwent.RaspberryRadio.shared.CommandStationList;
 import com.mwent.raspberryradio.ClientService;
 import com.mwent.raspberryradio.R;
