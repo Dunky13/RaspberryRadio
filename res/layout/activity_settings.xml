@@ -91,7 +91,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.7"
-                android:inputType="phone"
+                android:inputType="textUri"
                 android:ems="10" >
 
 
