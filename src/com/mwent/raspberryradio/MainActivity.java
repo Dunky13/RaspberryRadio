@@ -2,13 +2,18 @@ package com.mwent.raspberryradio;
 
 import java.net.URISyntaxException;
 import java.net.URL;
+
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,6 +21,7 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 import com.mwent.raspberryradio.server.ServerList;
@@ -30,6 +36,8 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	ImageButton buttonPrev, buttonStop, buttonPlay, buttonNext;
 	ImageView albumImage;
 	TextView songInfo;
+	
+	AudioManager am;
 
 	/**
 	 * The {@link ViewPager} that will host the section contents.
@@ -47,11 +55,12 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		setBehindContentView(R.layout.left_frame); // left and right menu
 
 		setupPlaybackButtons();
+		setVolume();
 
 		super.startService(new Intent(this, ClientService.class)); // Start ClientAPI service
 
 		ClientService.mainActivity = this;
-
+		
 		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
 
 		if (savedInstanceState == null)
@@ -67,6 +76,16 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		loadSliderStuff(transaction);
 
 		transaction.commit();
+	}
+
+	private void setVolume() {
+		am = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+		if(ClientService.clientAPI != null)
+		{
+			int maxV = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+			int curV = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+			ClientService.clientAPI.volume(curV * 100 / maxV);
+		}
 	}
 
 	private void setupPlaybackButtons()
@@ -202,7 +221,34 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 			}
 		}
 		else
+		{
 			album.setImageDrawable(getResources().getDrawable(R.drawable.default_album_image));
 
+		}
+	}
+	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		am = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+		int maxV = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+		int curV = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+	    if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
+	    {
+	    	curV-=1;	    	
+	    } 
+	    else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) 
+	    {
+	    	curV+=1;
+	    }
+	    if(ClientService.clientAPI != null)
+	    {
+	    	ClientService.clientAPI.volume(curV * 100 / maxV);
+	    }
+	    else 
+	    {
+	    	showNoConnectionAlert();
+	    }
+
+	    return super.onKeyDown(keyCode, event);
 	}
 }
