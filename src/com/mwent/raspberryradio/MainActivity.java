@@ -1,11 +1,14 @@
 package com.mwent.raspberryradio;
 
+import java.net.URISyntaxException;
+import java.net.URL;
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,7 +16,6 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 
@@ -21,11 +23,11 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 {
 
 	protected ListFragment mFrag;
-	
+
 	ImageButton buttonPrev, buttonStop, buttonPlay, buttonNext;
 	ImageView albumImage;
 	TextView songInfo;
-	
+
 	/**
 	 * The {@link ViewPager} that will host the section contents.
 	 */
@@ -35,15 +37,18 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 
 		setContentView(R.layout.activity_main);
 		setBehindContentView(R.layout.left_frame); // left and right menu
 
 		setupPlaybackButtons();
-		
+
 		super.startService(new Intent(this, ClientService.class)); // Start ClientAPI service
-		
+
+		ClientService.main = this;
+
 		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
 
 		if (savedInstanceState == null)
@@ -59,14 +64,17 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		loadSliderStuff(transaction);
 
 		transaction.commit();
+
+		toggle();
 	}
 
-	private void setupPlaybackButtons() {
-		buttonPrev = (ImageButton) findViewById(R.id.prev);
-		buttonStop = (ImageButton) findViewById(R.id.stop);
-		buttonPlay = (ImageButton) findViewById(R.id.play);
-		buttonNext = (ImageButton) findViewById(R.id.next);
-		
+	private void setupPlaybackButtons()
+	{
+		buttonPrev = (ImageButton)findViewById(R.id.prev);
+		buttonStop = (ImageButton)findViewById(R.id.stop);
+		buttonPlay = (ImageButton)findViewById(R.id.play);
+		buttonNext = (ImageButton)findViewById(R.id.next);
+
 		buttonPrev.setOnClickListener(this);
 		buttonStop.setOnClickListener(this);
 		buttonPlay.setOnClickListener(this);
@@ -130,25 +138,61 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	}
 
 	@Override
-	public void onClick(View v) {
+	public void onClick(View v)
+	{
+		if (ClientService.clientAPI == null)
+		{
+			showNoConnectionAlert();
+			return;
+		}
+		String s = getResources().getString(R.string.song_name);
 		switch (v.getId())
 		{
 		case R.id.prev:
-			Log.d("PREV", ClientService.clientAPI.prev());
-//			ClientService.updatePlayInfo(v);
+			s = ClientService.clientAPI.prev();
 			break;
 		case R.id.stop:
-			Log.d("STOP", ClientService.clientAPI.stop());
-//			ClientService.updatePlayInfo(v);
+			ClientService.clientAPI.stop();
 			break;
 		case R.id.play:
-			Log.d("PLAY", ClientService.clientAPI.play());
-//			ClientService.updatePlayInfo(v);
+			s = ClientService.clientAPI.play();
 			break;
 		case R.id.next:
-			Log.d("NEXT", ClientService.clientAPI.next());
-//			ClientService.updatePlayInfo(v);
+			s = ClientService.clientAPI.next();
 			break;
 		}
+
+		showAlbumImage();
+
+		TextView song = (TextView)findViewById(R.id.song_info);
+		song.setText(s);
+	}
+
+	private void showNoConnectionAlert()
+	{
+		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+		alertDialogBuilder.setTitle("You are not connected");
+		alertDialogBuilder.setMessage("Please connect before using the buttons").setCancelable(false).setPositiveButton("Ok", null);
+		alertDialogBuilder.create().show();
+	}
+
+	private void showAlbumImage()
+	{
+		URL cover = ClientService.clientAPI.getAlbumCover();
+		ImageView album = (ImageView)findViewById(R.id.album_image);
+		if (cover != null)
+		{
+			try
+			{
+				album.setImageURI(Uri.parse(cover.toURI().toString()));
+			}
+			catch (URISyntaxException e)
+			{
+				album.setImageDrawable(getResources().getDrawable(R.drawable.default_album_image));
+			}
+		}
+		else
+			album.setImageDrawable(getResources().getDrawable(R.drawable.default_album_image));
+
 	}
 }

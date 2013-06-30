@@ -10,7 +10,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,7 +22,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.mwent.RaspberryRadio.client.AndroidClient;
 import com.mwent.raspberryradio.ServerSettings.ServerSettingsException;
 
@@ -38,9 +36,9 @@ public class ServerList extends ListFragment implements OnClickListener
 
 	ImageView albumImage;
 	TextView songInfo;
-	
+
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-	{	
+	{
 		return inflater.inflate(R.layout.list, null);
 	}
 
@@ -51,23 +49,16 @@ public class ServerList extends ListFragment implements OnClickListener
 		adapter = new ServerSettingsAdapter(getActivity());
 		read();
 		servers.add(new ServerSettings(
-				"Radio GaGa",
-				"192.168.43.103",
-				6584,
-				"root",
-				"Admin",
-				';',
-				R.drawable.ic_action_bookmark,
-				true));
-		servers.add(new ServerSettings(
-				"Radio Marc",
-				"mwent.info",
-				6584,
-				"root",
-				"Admin",
-				';',
-				R.drawable.ic_action_bookmark,
-				true));
+			"Radio GaGa",
+			"192.168.43.103",
+			6584,
+			"root",
+			"Admin",
+			';',
+			R.drawable.ic_action_bookmark,
+			true));
+		servers
+			.add(new ServerSettings("Radio Marc", "mwent.info", 6584, "root", "Admin", ';', R.drawable.ic_action_bookmark, true));
 		loadServersList();
 
 		setListAdapter(adapter);
@@ -113,9 +104,11 @@ public class ServerList extends ListFragment implements OnClickListener
 
 			convertView.setTag(getItem(position));
 			convertView.setOnClickListener(_this);
-			convertView.setOnLongClickListener(new OnLongClickListener(){
+			convertView.setOnLongClickListener(new OnLongClickListener()
+			{
 				@Override
-				public boolean onLongClick(View v) {
+				public boolean onLongClick(View v)
+				{
 					ClientService.settings = (ServerSettings)v.getTag();
 					startActivity(new Intent(getActivity(), SettingsActivity.class));
 					return false;
@@ -181,27 +174,28 @@ public class ServerList extends ListFragment implements OnClickListener
 	}
 
 	@Override
-	public void onClick(View v) 
+	public void onClick(View v)
 	{
 		ServerSettings settings = (ServerSettings)v.getTag();
-		
-		if(ClientService.clientAPI != null)
+
+		if (ClientService.clientAPI != null)
 		{
 			ClientService.settings = null;
 			ClientService.clientAPI.disconnect();
 		}
-		
-		if (settings.equals(ServerSettings.NEW_SERVER)) 
+
+		if (settings.equals(ServerSettings.NEW_SERVER))
 		{
 			startActivity(new Intent(getActivity(), SettingsActivity.class));
-		} 
-		else 
+		}
+		else
 		{
 			ClientService.settings = settings;
 			ClientService.clientAPI = new AndroidClient(settings.getIp(), settings.getPort());
 			ClientService.clientAPI.connect(settings.getUsername(), settings.getPassword());
-			
-//			ClientService.updatePlayInfo(getView());
+
+			if (ClientService.main != null)
+				ClientService.main.toggle();
 		}
 	}
 }
