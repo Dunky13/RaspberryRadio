@@ -25,6 +25,7 @@ import android.widget.TextView;
 import com.mwent.RaspberryRadio.shared.CommandStationList;
 import com.mwent.raspberryradio.ClientService;
 import com.mwent.raspberryradio.R;
+import com.mwent.raspberryradio.UpdaterService;
 
 public class StationList extends ListFragment implements OnClickListener
 {
@@ -220,7 +221,7 @@ public class StationList extends ListFragment implements OnClickListener
 
 			if (ClientService.mainActivity != null)
 			{
-				ClientService.clientAPI.setStation(settings.getPos());
+				UpdaterService.update(ClientService.clientAPI.setStation(settings.getPos()));
 				ClientService.mainActivity.toggle();
 				//ClientService.mainActivity.setSongText(ClientService.clientAPI.getUpdate());
 			}

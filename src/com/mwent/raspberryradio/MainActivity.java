@@ -2,7 +2,12 @@ package com.mwent.raspberryradio;
 
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -20,6 +25,7 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 import com.mwent.raspberryradio.server.ServerList;
@@ -56,7 +62,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		setVolume();
 
 		super.startService(new Intent(this, ClientService.class)); // Start ClientAPI service
-
+		
 		ClientService.mainActivity = this;
 
 		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
@@ -165,26 +171,29 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 			showNoConnectionAlert();
 			return;
 		}
-		String s = getResources().getString(R.string.song_name);
+//		String s = getResources().getString(R.string.song_name);
 		switch (v.getId())
 		{
 		case R.id.prev:
-			s = ClientService.clientAPI.prev();
+			UpdaterService.prev();
+//			s = ClientService.clientAPI.prev();
 			break;
 		case R.id.stop:
-			ClientService.clientAPI.stop();
+			UpdaterService.stop();
+//			ClientService.clientAPI.stop();
 			break;
 		case R.id.play:
-			s = ClientService.clientAPI.play();
+			UpdaterService.play();
+//			s = ClientService.clientAPI.play();
 			break;
 		case R.id.next:
-			s = ClientService.clientAPI.next();
+			UpdaterService.next();
+//			s = ClientService.clientAPI.next();
 			break;
 		}
 
-		showAlbumImage();
-
-		setSongText(s);
+//		showAlbumImage();
+//		setSongText(s);
 	}
 
 	public void setSongText(String s)
@@ -204,7 +213,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		alertDialogBuilder.create().show();
 	}
 
-	private void showAlbumImage()
+	public void showAlbumImage()
 	{
 		URL cover = ClientService.clientAPI.getAlbumCover();
 		ImageView album = (ImageView)findViewById(R.id.album_image);
@@ -251,5 +260,31 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		}
 
 		return super.onKeyDown(keyCode, event);
+	}
+
+	public void setUpdaterAlarm() {
+		AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+		PendingIntent intent = PendingIntent.getActivity(getApplicationContext(), -1, new Intent("com.mwent.raspberryradio.UPDATER"), PendingIntent.FLAG_UPDATE_CURRENT);
+		alarmManager.setRepeating(AlarmManager.RTC, 0, 1000*30, intent); // every minute		
+	}
+	
+	public void setUpdaterTimer() {
+		Timer timer = new Timer();
+		timer.scheduleAtFixedRate(new UpdaterTask(), 0, 1000*60);
+	}
+	
+	protected class UpdaterTask extends TimerTask
+	{
+		@Override
+		public void run() 
+		{
+			runOnUiThread(new Runnable(){
+
+				@Override
+				public void run() {
+					UpdaterService.update(ClientService.clientAPI.getUpdate());
+				}
+			});
+		}
 	}
 }
