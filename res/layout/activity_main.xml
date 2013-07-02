@@ -14,7 +14,7 @@
         android:layout_weight="4.59"
         android:contentDescription="@string/album_image"
         android:gravity="center_vertical|center_horizontal"
-        android:scaleType="center"
+        android:scaleType="fitCenter"
         android:src="@drawable/default_album_image" />
 
     <TextView

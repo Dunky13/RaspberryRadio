@@ -1,17 +1,22 @@
 package com.mwent.raspberryradio;
 
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.io.InputStream;
 import java.util.Timer;
 import java.util.TimerTask;
-
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.HttpGet;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
-import android.net.Uri;
+import android.net.http.AndroidHttpClient;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
@@ -25,12 +30,12 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 import com.mwent.raspberryradio.server.ServerList;
 import com.mwent.raspberryradio.server.ServerSettingsActivity;
 import com.mwent.raspberryradio.station.StationList;
+import de.umass.lastfm.Caller;
 
 public class MainActivity extends SlidingFragmentActivity implements OnClickListener
 {
@@ -62,7 +67,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		setVolume();
 
 		super.startService(new Intent(this, ClientService.class)); // Start ClientAPI service
-		
+
 		ClientService.mainActivity = this;
 
 		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
@@ -171,29 +176,29 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 			showNoConnectionAlert();
 			return;
 		}
-//		String s = getResources().getString(R.string.song_name);
+		//		String s = getResources().getString(R.string.song_name);
 		switch (v.getId())
 		{
 		case R.id.prev:
 			UpdaterService.prev();
-//			s = ClientService.clientAPI.prev();
+			//			s = ClientService.clientAPI.prev();
 			break;
 		case R.id.stop:
 			UpdaterService.stop();
-//			ClientService.clientAPI.stop();
+			//			ClientService.clientAPI.stop();
 			break;
 		case R.id.play:
 			UpdaterService.play();
-//			s = ClientService.clientAPI.play();
+			//			s = ClientService.clientAPI.play();
 			break;
 		case R.id.next:
 			UpdaterService.next();
-//			s = ClientService.clientAPI.next();
+			//			s = ClientService.clientAPI.next();
 			break;
 		}
 
-//		showAlbumImage();
-//		setSongText(s);
+		//		showAlbumImage();
+		//		setSongText(s);
 	}
 
 	public void setSongText(String s)
@@ -215,24 +220,50 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 
 	public void showAlbumImage()
 	{
-		URL cover = ClientService.clientAPI.getAlbumCover();
 		ImageView album = (ImageView)findViewById(R.id.album_image);
-		if (cover != null)
-		{
-			try
-			{
-				album.setImageURI(Uri.parse(cover.toURI().toString()));
-			}
-			catch (URISyntaxException e)
-			{
-				album.setImageDrawable(getResources().getDrawable(R.drawable.default_album_image));
-			}
-		}
-		else
-		{
-			album.setImageDrawable(getResources().getDrawable(R.drawable.default_album_image));
+		Caller.getInstance().setCache(null);
+		String coverString = (ClientService.clientAPI.getAlbumCover());
 
+		System.out.println(coverString);
+		if (coverString == null || coverString.trim().isEmpty())
+		{
+			setDefaultAlbumImage(album);
+			return;
 		}
+		setImage(coverString);
+		//		Bitmap image = downloadImage(coverString);
+		//		album.setImageBitmap(image);
+		//
+		//		URL cover = null;
+		//		try
+		//		{
+		//			cover = new URL(coverString);
+		//		}
+		//		catch (MalformedURLException e1)
+		//		{
+		//			e1.printStackTrace();
+		//		}
+		//		if (cover != null)
+		//		{
+		//			try
+		//			{
+		//				album.setImageURI(Uri.parse(cover.toURI().toString()));
+		//			}
+		//			catch (URISyntaxException e)
+		//			{
+		//				setDefaultAlbumImage(album);
+		//			}
+		//		}
+		//		else
+		//		{
+		//			setDefaultAlbumImage(album);
+		//
+		//		}
+	}
+
+	private void setDefaultAlbumImage(ImageView album)
+	{
+		album.setImageDrawable(getResources().getDrawable(R.drawable.default_album_image));
 	}
 
 	@Override
@@ -262,26 +293,119 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		return super.onKeyDown(keyCode, event);
 	}
 
-	public void setUpdaterAlarm() {
-		AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-		PendingIntent intent = PendingIntent.getActivity(getApplicationContext(), -1, new Intent("com.mwent.raspberryradio.UPDATER"), PendingIntent.FLAG_UPDATE_CURRENT);
-		alarmManager.setRepeating(AlarmManager.RTC, 0, 1000*30, intent); // every minute		
+	public void setUpdaterAlarm()
+	{
+		AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+		PendingIntent intent = PendingIntent.getActivity(
+			getApplicationContext(),
+			-1,
+			new Intent("com.mwent.raspberryradio.UPDATER"),
+			PendingIntent.FLAG_UPDATE_CURRENT);
+		alarmManager.setRepeating(AlarmManager.RTC, 0, 1000 * 30, intent); // every minute		
 	}
-	
-	public void setUpdaterTimer() {
+
+	public void setUpdaterTimer()
+	{
 		Timer timer = new Timer();
-		timer.scheduleAtFixedRate(new UpdaterTask(), 0, 1000*60);
+		timer.scheduleAtFixedRate(new UpdaterTask(), 0, 1000 * 60);
 	}
-	
+
+	private void setImage(String url)
+	{
+		AsyncTask<String, Void, Void> task = new AsyncTask<String, Void, Void>()
+		{
+
+			@Override
+			protected Void doInBackground(String... params)
+			{
+				String url = params[0];
+				final Bitmap bitmap = downloadBitmap(url);
+				runOnUiThread(new Runnable()
+				{
+
+					@Override
+					public void run()
+					{
+
+						//						ViewGroup.MarginLayoutParams imageViewParams = new ViewGroup.MarginLayoutParams(
+						//							ViewGroup.MarginLayoutParams.MATCH_PARENT,
+						//							ViewGroup.MarginLayoutParams.FILL_PARENT);
+						//						LayoutParams layout = new LayoutParams(imageViewParams);
+						ImageView album = (ImageView)findViewById(R.id.album_image);
+						album.setImageBitmap(bitmap);
+						//						album.setLayoutParams(layout);
+					}
+
+				});
+				return null;
+			}
+
+		};
+		task.execute(url);
+	}
+
+	private Bitmap downloadBitmap(String url)
+	{
+		final AndroidHttpClient client = AndroidHttpClient.newInstance("Android");
+		final HttpGet getRequest = new HttpGet(url);
+
+		try
+		{
+			HttpResponse response = client.execute(getRequest);
+			final int statusCode = response.getStatusLine().getStatusCode();
+			if (statusCode != HttpStatus.SC_OK)
+			{
+				Log.w("ImageDownloader", "Error " + statusCode + " while retrieving bitmap from " + url);
+				return null;
+			}
+
+			final HttpEntity entity = response.getEntity();
+			if (entity != null)
+			{
+				InputStream inputStream = null;
+				try
+				{
+					inputStream = entity.getContent();
+					final Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+					return bitmap;
+				}
+				finally
+				{
+					if (inputStream != null)
+					{
+						inputStream.close();
+					}
+					entity.consumeContent();
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			// Could provide a more explicit error message for IOException or IllegalStateException
+			getRequest.abort();
+			Log.w("ImageDownloader", "Error while retrieving bitmap from " + url + " - " + e.toString());
+		}
+		finally
+		{
+			if (client != null)
+			{
+				client.close();
+			}
+		}
+		return null;
+	}
+
 	protected class UpdaterTask extends TimerTask
 	{
 		@Override
-		public void run() 
+		public void run()
 		{
-			runOnUiThread(new Runnable(){
+			runOnUiThread(new Runnable()
+			{
 
 				@Override
-				public void run() {
+				public void run()
+				{
 					UpdaterService.update(ClientService.clientAPI.getUpdate());
 				}
 			});
