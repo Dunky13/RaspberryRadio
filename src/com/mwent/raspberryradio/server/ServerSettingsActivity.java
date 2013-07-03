@@ -62,7 +62,7 @@ public class ServerSettingsActivity extends Activity implements OnClickListener
 	private void processSave()
 	{
 
-		ServerSettings setting = getSetting();
+		ServerSettings setting = getSetting(false);
 		if (setting == null)
 			return;
 		if (setting.getId() < 0)
@@ -104,7 +104,7 @@ public class ServerSettingsActivity extends Activity implements OnClickListener
 		}
 	}
 
-	private ServerSettings getSetting()
+	private ServerSettings getSetting(boolean delete)
 	{
 		String name, username, password, ip;
 		int id, port;
@@ -114,9 +114,13 @@ public class ServerSettingsActivity extends Activity implements OnClickListener
 		}
 		catch (NumberFormatException e)
 		{
-			Log.e("DELETE_ERROR", e.getMessage());
-			finish();
-			return null;
+			if (delete)
+			{
+				Log.e("DELETE_ERROR", e.getMessage());
+				finish();
+				return null;
+			}
+			id = -1;
 		}
 		name = ((EditText)findViewById(R.id.settings_servername)).getText().toString();
 		username = ((EditText)findViewById(R.id.settings_username)).getText().toString();
@@ -136,7 +140,7 @@ public class ServerSettingsActivity extends Activity implements OnClickListener
 			@Override
 			public void onClick(DialogInterface dialog, int which)
 			{
-				ServerSettings setting = getSetting();
+				ServerSettings setting = getSetting(true);
 				ClientService.serverList.remove(setting);
 			}
 		}).setNegativeButton("Cancel", null);
