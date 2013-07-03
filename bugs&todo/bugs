@@ -1,5 +1,0 @@
-FIXED Crash on start when server is not playing
-FIXED Crash when station didn't have a song playing
-FIXED Hang when switching station and downloading images
-SEMI-FIX Hang when selecting a server - probably needs more multi-threading
-FIXED nameless stations don't show default image

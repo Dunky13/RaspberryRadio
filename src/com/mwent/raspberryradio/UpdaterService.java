@@ -7,6 +7,8 @@ import android.os.IBinder;
 public class UpdaterService extends Service
 {
 
+	private static String previousSong = "";
+
 	@Override
 	public void onCreate()
 	{
@@ -17,25 +19,30 @@ public class UpdaterService extends Service
 
 	public static void update(final String songInfo)
 	{
-		if (ClientService.clientAPI.isPlaying())
+		if (!previousSong.equals(songInfo))
 		{
-			ClientService.stationList.firstLoadStationList();
-			new Thread(new Runnable()
+			previousSong = songInfo;
+			if (ClientService.clientAPI.isPlaying())
 			{
-
-				@Override
-				public void run()
+				ClientService.mainActivity.showProgressBar(true);
+				ClientService.stationList.firstLoadStationList();
+				new Thread(new Runnable()
 				{
-					if (ClientService.mainActivity.setSongText(songInfo))
-						ClientService.mainActivity.showAlbumImage();
-					else
+
+					@Override
+					public void run()
 					{
-						ClientService.mainActivity.setSongText(ClientService.mainActivity.getResources().getString(
-							R.string.no_song_name));
-						ClientService.mainActivity.setDefaultAlbumImage();
+						if (ClientService.mainActivity.setSongText(songInfo))
+							ClientService.mainActivity.showAlbumImage();
+						else
+						{
+							ClientService.mainActivity.setSongText(ClientService.mainActivity.getResources().getString(
+								R.string.no_song_name));
+							ClientService.mainActivity.setDefaultAlbumImage();
+						}
 					}
-				}
-			}).start();
+				}).start();
+			}
 		}
 	}
 

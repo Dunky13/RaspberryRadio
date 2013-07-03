@@ -7,9 +7,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
-import android.app.AlarmManager;
 import android.app.AlertDialog;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -45,6 +43,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 
 	ImageButton buttonPrev, buttonStop, buttonPlay, buttonNext;
 	ImageView albumImage;
+	ProgressBar bar;
 	TextView songInfo;
 
 	AudioManager am;
@@ -86,62 +85,6 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		loadSliderStuff(transaction);
 
 		transaction.commit();
-	}
-
-	private void setVolume()
-	{
-		am = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-		if (ClientService.clientAPI != null)
-		{
-			int maxV = am.getStreamMaxVolume(AudioManager.STREAM_RING);
-			int curV = am.getStreamVolume(AudioManager.STREAM_RING);
-			ClientService.clientAPI.volume(curV * 100 / maxV);
-		}
-	}
-
-	private void setupPlaybackButtons()
-	{
-		buttonPrev = (ImageButton)findViewById(R.id.prev);
-		buttonStop = (ImageButton)findViewById(R.id.stop);
-		buttonPlay = (ImageButton)findViewById(R.id.play);
-		buttonNext = (ImageButton)findViewById(R.id.next);
-
-		buttonPrev.setOnClickListener(this);
-		buttonStop.setOnClickListener(this);
-		buttonPlay.setOnClickListener(this);
-		buttonNext.setOnClickListener(this);
-
-		albumImage = (ImageView)findViewById(R.id.album_image);
-		albumImage.setOnLongClickListener(new View.OnLongClickListener()
-		{
-
-			@Override
-			public boolean onLongClick(View v)
-			{
-				UpdaterService.update(ClientService.clientAPI.getUpdate());
-				return false;
-			}
-		});
-	}
-
-	public void loadSliderStuff(FragmentTransaction transaction)
-	{
-		SlidingMenu sm = getSlidingMenu();
-		sm.setMode(SlidingMenu.LEFT_RIGHT);
-		sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
-
-		sm.setShadowWidthRes(R.dimen.shadow_width);
-		sm.setShadowDrawable(R.drawable.shadow);
-
-		sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
-		sm.setFadeDegree(0.35f);
-
-		sm.setSecondaryMenu(R.layout.right_frame);
-		sm.setSecondaryShadowDrawable(R.drawable.shadowright);
-
-		transaction.replace(R.id.left_frame, new ServerList()); //LEFT
-		transaction.replace(R.id.right_frame, new StationList()); //RIGHT
-
 	}
 
 	@Override
@@ -206,60 +149,6 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		}
 	}
 
-	public boolean setSongText(final String s)
-	{
-		if (s != null && !s.trim().isEmpty())
-		{
-			final TextView song = (TextView)findViewById(R.id.song_info);
-			runOnUiThread(new Runnable()
-			{
-
-				@Override
-				public void run()
-				{
-					song.setText(s);
-				}
-			});
-			return true;
-		}
-		return false;
-	}
-
-	private void showNoConnectionAlert()
-	{
-		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-		alertDialogBuilder.setTitle("You are not connected");
-		alertDialogBuilder.setMessage("Please connect before using the buttons").setCancelable(false).setPositiveButton("Ok", null);
-		alertDialogBuilder.create().show();
-	}
-
-	public void showAlbumImage()
-	{
-		Caller.getInstance().setCache(null);
-		String coverString = (ClientService.clientAPI.getAlbumCover());
-
-		//		System.out.println(coverString);
-		if (coverString == null || coverString.trim().isEmpty())
-		{
-			setDefaultAlbumImage();
-			return;
-		}
-		setImage(coverString);
-	}
-
-	public void setDefaultAlbumImage()
-	{
-		runOnUiThread(new Runnable()
-		{
-
-			@Override
-			public void run()
-			{
-				albumImage.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.default_album_image));
-			}
-		});
-	}
-
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event)
 	{
@@ -287,57 +176,78 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		return super.onKeyDown(keyCode, event);
 	}
 
-	public void setUpdaterAlarm()
+	private void setVolume()
 	{
-		AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
-		PendingIntent intent = PendingIntent.getActivity(
-			getApplicationContext(),
-			-1,
-			new Intent("com.mwent.raspberryradio.UPDATER"),
-			PendingIntent.FLAG_UPDATE_CURRENT);
-		alarmManager.setRepeating(AlarmManager.RTC, 0, 1000 * 30, intent); // every minute		
+		am = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+		if (ClientService.clientAPI != null)
+		{
+			int maxV = am.getStreamMaxVolume(AudioManager.STREAM_RING);
+			int curV = am.getStreamVolume(AudioManager.STREAM_RING);
+			ClientService.clientAPI.volume(curV * 100 / maxV);
+		}
 	}
 
-	public void setUpdaterTimer()
+	private void setupPlaybackButtons()
 	{
-		Timer timer = new Timer();
-		timer.scheduleAtFixedRate(new UpdaterTask(), 0, 1000 * 60);
+		buttonPrev = (ImageButton)findViewById(R.id.prev);
+		buttonStop = (ImageButton)findViewById(R.id.stop);
+		buttonPlay = (ImageButton)findViewById(R.id.play);
+		buttonNext = (ImageButton)findViewById(R.id.next);
+
+		buttonPrev.setOnClickListener(this);
+		buttonStop.setOnClickListener(this);
+		buttonPlay.setOnClickListener(this);
+		buttonNext.setOnClickListener(this);
+
+		bar = (ProgressBar)findViewById(R.id.album_image_loader);
+
+		albumImage = (ImageView)findViewById(R.id.album_image);
+		albumImage.setOnLongClickListener(new View.OnLongClickListener()
+		{
+
+			@Override
+			public boolean onLongClick(View v)
+			{
+				UpdaterService.update(ClientService.clientAPI.getUpdate());
+				return false;
+			}
+		});
+	}
+
+	private void showNoConnectionAlert()
+	{
+		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+		alertDialogBuilder.setTitle("You are not connected");
+		alertDialogBuilder.setMessage("Please connect before using the buttons").setCancelable(false).setPositiveButton("Ok", null);
+		alertDialogBuilder.create().show();
 	}
 
 	private void setImage(String url)
 	{
-
 		AsyncTask<String, Void, Void> task = new AsyncTask<String, Void, Void>()
 		{
 
 			@Override
 			protected Void doInBackground(String... params)
 			{
-				final ProgressBar bar = (ProgressBar)findViewById(R.id.album_image_loader);
-				runOnUiThread(new Runnable()
-				{
-					public void run()
-					{
-						bar.setVisibility(View.VISIBLE);
-						albumImage.setVisibility(View.GONE);
-
-					}
-				});
 				String url = params[0];
 				final Bitmap bitmap = downloadBitmap(url);
-				runOnUiThread(new Runnable()
+				if (bitmap != null)
 				{
-
-					@Override
-					public void run()
+					runOnUiThread(new Runnable()
 					{
 
-						albumImage.setImageBitmap(bitmap);
-						albumImage.setVisibility(View.VISIBLE);
-						bar.setVisibility(View.GONE);
-					}
+						@Override
+						public void run()
+						{
+							albumImage.setImageBitmap(bitmap);
+						}
 
-				});
+					});
+					showProgressBar(false);
+				}
+				else
+					setDefaultAlbumImage();
 				return null;
 			}
 
@@ -383,7 +293,8 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		catch (Exception e)
 		{
 			getRequest.abort();
-			Log.w("ImageDownloader", "Error while retrieving bitmap from " + url + " - " + e.toString());
+			Log.w("ImageDownloader", "Error while retrieving bitmap from " + url + " - " + e.getMessage());
+
 		}
 		finally
 		{
@@ -393,6 +304,103 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 			}
 		}
 		return null;
+	}
+
+	private void loadSliderStuff(FragmentTransaction transaction)
+	{
+		SlidingMenu sm = getSlidingMenu();
+		sm.setMode(SlidingMenu.LEFT_RIGHT);
+		sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+
+		sm.setShadowWidthRes(R.dimen.shadow_width);
+		sm.setShadowDrawable(R.drawable.shadow);
+
+		sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
+		sm.setFadeDegree(0.35f);
+
+		sm.setSecondaryMenu(R.layout.right_frame);
+		sm.setSecondaryShadowDrawable(R.drawable.shadowright);
+
+		transaction.replace(R.id.left_frame, new ServerList()); //LEFT
+		transaction.replace(R.id.right_frame, new StationList()); //RIGHT
+
+	}
+
+	public boolean setSongText(final String s)
+	{
+		if (s != null && !s.trim().isEmpty())
+		{
+			final TextView song = (TextView)findViewById(R.id.song_info);
+			runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					song.setText(s);
+				}
+			});
+			return true;
+		}
+		return false;
+	}
+
+	public void showAlbumImage()
+	{
+		Caller.getInstance().setCache(null);
+
+		String coverString = null;
+		if (ClientService.clientAPI.getAlbumCoverEnabled())
+			coverString = ClientService.clientAPI.getAlbumCover();
+
+		if (coverString == null || coverString.trim().isEmpty())
+		{
+			setDefaultAlbumImage();
+			return;
+		}
+		setImage(coverString);
+	}
+
+	public void setUpdaterTimer()
+	{
+		Timer timer = new Timer();
+		timer.scheduleAtFixedRate(new UpdaterTask(), 0, 1000 * 60);
+	}
+
+	public void setDefaultAlbumImage()
+	{
+		showProgressBar(true);
+		runOnUiThread(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				albumImage.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.default_album_image));
+				showProgressBar(false);
+			}
+		});
+	}
+
+	public void showProgressBar(final boolean show)
+	{
+		runOnUiThread(new Runnable()
+		{
+			public void run()
+			{
+				if (show)
+				{
+					bar.setVisibility(View.VISIBLE);
+					albumImage.setVisibility(View.GONE);
+				}
+				else
+				{
+					bar.setVisibility(View.GONE);
+					albumImage.setVisibility(View.VISIBLE);
+				}
+
+			}
+		});
+
 	}
 
 	protected class UpdaterTask extends TimerTask
