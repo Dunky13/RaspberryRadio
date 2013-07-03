@@ -19,7 +19,7 @@ public class UpdaterService extends Service
 
 	public static void update(String songInfo)
 	{
-		if (!previousSong.equals(songInfo))
+		if (songInfo != null && !previousSong.equals(songInfo))
 		{
 			previousSong = songInfo;
 			ClientService.mainActivity.updateInfo(songInfo);

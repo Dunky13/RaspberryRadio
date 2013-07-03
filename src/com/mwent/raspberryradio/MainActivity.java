@@ -465,7 +465,8 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 				@Override
 				public void run()
 				{
-					UpdaterService.update(ClientService.clientAPI.getUpdate());
+					if (ClientService.clientAPI != null)
+						UpdaterService.update(ClientService.clientAPI.getUpdate());
 				}
 			});
 		}
