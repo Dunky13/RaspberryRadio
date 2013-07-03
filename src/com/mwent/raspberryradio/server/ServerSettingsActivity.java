@@ -40,6 +40,40 @@ public class ServerSettingsActivity extends Activity implements OnClickListener
 
 	}
 
+	@Override
+	public void onClick(View v)
+	{
+		switch (v.getId())
+		{
+		case R.id.settings_cancel:
+			finish();
+			return;
+		case R.id.settings_save:
+			processSave();
+			finish();
+			return;
+		case R.id.settings_delete:
+			showDeleteAlert();
+			finish();
+			return;
+		}
+	}
+
+	private void processSave()
+	{
+
+		ServerSettings setting = getSetting();
+		if (setting == null)
+			return;
+		if (setting.getId() < 0)
+		{
+			setting.setId(0);
+			ClientService.serverList.add(setting);
+		}
+		else
+			ClientService.serverList.replace(setting);
+	}
+
 	private void fillSettings()
 	{
 		TextView id = (TextView)findViewById(R.id.settings_server_id);
@@ -70,46 +104,26 @@ public class ServerSettingsActivity extends Activity implements OnClickListener
 		}
 	}
 
-	@Override
-	public void onClick(View v)
+	private ServerSettings getSetting()
 	{
 		String name, username, password, ip;
 		int id, port;
-		ServerSettings setting;
-		switch (v.getId())
+		try
 		{
-		case R.id.settings_cancel:
-			finish();
-			return;
-		case R.id.settings_save:
-			try
-			{
-				id = Integer.parseInt(((TextView)findViewById(R.id.settings_server_id)).getText().toString());
-			}
-			catch (NumberFormatException e)
-			{
-				id = -1;
-			}
-			name = ((EditText)findViewById(R.id.settings_servername)).getText().toString();
-			username = ((EditText)findViewById(R.id.settings_username)).getText().toString();
-			password = ((EditText)findViewById(R.id.settings_password)).getText().toString();
-			ip = ((EditText)findViewById(R.id.settings_server_ip)).getText().toString();
-			port = Integer.parseInt(((EditText)findViewById(R.id.settings_server_port)).getText().toString());
-			setting = new ServerSettings(id, name, ip, port, username, password, ServerList.DELIM);
-			if (id < 0)
-			{
-				setting.setId(0);
-				ClientService.serverList.add(setting);
-			}
-			else
-				ClientService.serverList.replace(setting);
-			finish();
-			return;
-		case R.id.settings_delete:
-			showDeleteAlert();
-			finish();
-			return;
+			id = Integer.parseInt(((TextView)findViewById(R.id.settings_server_id)).getText().toString());
 		}
+		catch (NumberFormatException e)
+		{
+			Log.e("DELETE_ERROR", e.getMessage());
+			finish();
+			return null;
+		}
+		name = ((EditText)findViewById(R.id.settings_servername)).getText().toString();
+		username = ((EditText)findViewById(R.id.settings_username)).getText().toString();
+		password = ((EditText)findViewById(R.id.settings_password)).getText().toString();
+		ip = ((EditText)findViewById(R.id.settings_server_ip)).getText().toString();
+		port = Integer.parseInt(((EditText)findViewById(R.id.settings_server_port)).getText().toString());
+		return new ServerSettings(id, name, ip, port, username, password, ServerList.DELIM);
 	}
 
 	private void showDeleteAlert()
@@ -122,25 +136,7 @@ public class ServerSettingsActivity extends Activity implements OnClickListener
 			@Override
 			public void onClick(DialogInterface dialog, int which)
 			{
-				String name, username, password, ip;
-				int id, port;
-				ServerSettings setting;
-				try
-				{
-					id = Integer.parseInt(((TextView)findViewById(R.id.settings_server_id)).getText().toString());
-				}
-				catch (NumberFormatException e)
-				{
-					Log.e("DELETE_ERROR", e.getMessage());
-					finish();
-					return;
-				}
-				name = ((EditText)findViewById(R.id.settings_servername)).getText().toString();
-				username = ((EditText)findViewById(R.id.settings_username)).getText().toString();
-				password = ((EditText)findViewById(R.id.settings_password)).getText().toString();
-				ip = ((EditText)findViewById(R.id.settings_server_ip)).getText().toString();
-				port = Integer.parseInt(((EditText)findViewById(R.id.settings_server_port)).getText().toString());
-				setting = new ServerSettings(id, name, ip, port, username, password, ServerList.DELIM);
+				ServerSettings setting = getSetting();
 				ClientService.serverList.remove(setting);
 			}
 		}).setNegativeButton("Cancel", null);

@@ -18,13 +18,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
-import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -32,26 +32,29 @@ import android.widget.TextView;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 import com.mwent.raspberryradio.server.ServerList;
+import com.mwent.raspberryradio.server.ServerSettingsActivity;
 import com.mwent.raspberryradio.server.ServerSettingsActivityMain;
 import com.mwent.raspberryradio.station.StationList;
 import de.umass.lastfm.Caller;
 
-public class MainActivity extends SlidingFragmentActivity implements OnClickListener
+public class MainActivity extends SlidingFragmentActivity implements OnClickListener, OnLongClickListener
 {
 
 	protected ListFragment mFrag;
 
-	ImageButton buttonPrev, buttonStop, buttonPlay, buttonNext;
-	ImageView albumImage;
-	ProgressBar bar;
-	TextView songInfo;
+	private ImageButton buttonPrev, buttonStop, buttonPlay, buttonNext;
+	private ImageView albumImage;
+	private ProgressBar bar;
+	private TextView songInfo;
 
-	AudioManager am;
+	private AudioManager am;
 
-	/**
-	 * The {@link ViewPager} that will host the section contents.
-	 */
-	ViewPager mViewPager;
+	@Override
+	protected void onStop()
+	{
+		super.onStop();
+		finish();
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -62,13 +65,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 
 		setContentView(R.layout.activity_main);
 		setBehindContentView(R.layout.left_frame); // left and right menu
-
-		setupPlaybackButtons();
-		setVolume();
-
-		super.startService(new Intent(this, ClientService.class)); // Start ClientAPI service
-
-		ClientService.mainActivity = this;
+		loadVariables();
 
 		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
 
@@ -95,13 +92,6 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	}
 
 	@Override
-	protected void onStop()
-	{
-		super.onStop();
-		finish();
-	}
-
-	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
 		Intent intent;
@@ -112,7 +102,6 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 			getSlidingMenu().showMenu(true);
 			return true;
 		case R.id.action_settings:
-			//			startActivity(new Intent("com.mwent.raspberryradio.SETTINGS"));
 			intent = new Intent(this, ServerSettingsActivityMain.class);
 			this.startActivity(intent);
 			return true;
@@ -150,76 +139,153 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	}
 
 	@Override
+	public boolean onLongClick(View v)
+	{
+		if (ClientService.clientAPI != null)
+			UpdaterService.update(ClientService.clientAPI.getUpdate());
+		return false;
+	}
+
+	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event)
 	{
-		am = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
 		int maxV = am.getStreamMaxVolume(AudioManager.STREAM_RING);
 		int curV = am.getStreamVolume(AudioManager.STREAM_RING);
-		Log.d("VOLUME", curV + "");
 		if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
 		{
 			curV -= 1;
+			setVolume(curV * 100d / maxV);
 		}
 		else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP)
 		{
 			curV += 1;
+			setVolume(curV * 100d / maxV);
 		}
-		if (ClientService.clientAPI != null)
+		else if (keyCode == KeyEvent.KEYCODE_MENU)
 		{
-			ClientService.clientAPI.volume(curV * 100 / maxV);
-		}
-		else
-		{
-			showNoConnectionAlert();
+			Intent intent = new Intent(this, ServerSettingsActivityMain.class);
+			this.startActivity(intent);
+			return true;
 		}
 
 		return super.onKeyDown(keyCode, event);
 	}
 
-	private void setVolume()
+	@Override
+	public boolean onKeyLongPress(int keyCode, KeyEvent event)
 	{
-		am = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-		if (ClientService.clientAPI != null)
+		if (keyCode == KeyEvent.KEYCODE_BACK)
 		{
-			int maxV = am.getStreamMaxVolume(AudioManager.STREAM_RING);
-			int curV = am.getStreamVolume(AudioManager.STREAM_RING);
-			ClientService.clientAPI.volume(curV * 100 / maxV);
+			toggle();
+			return true;
 		}
+		else if (keyCode == KeyEvent.KEYCODE_MENU)
+		{
+			Intent intent = new Intent(this, ServerSettingsActivity.class);
+			this.startActivity(intent);
+			return true;
+		}
+		return super.onKeyLongPress(keyCode, event);
 	}
 
-	private void setupPlaybackButtons()
+	public boolean setSongText(final String s)
 	{
-		buttonPrev = (ImageButton)findViewById(R.id.prev);
-		buttonStop = (ImageButton)findViewById(R.id.stop);
-		buttonPlay = (ImageButton)findViewById(R.id.play);
-		buttonNext = (ImageButton)findViewById(R.id.next);
+		if (s != null && !s.trim().isEmpty())
+		{
+			runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					songInfo.setText(s);
+				}
+			});
+			return true;
+		}
+		return false;
+	}
 
-		buttonPrev.setOnClickListener(this);
-		buttonStop.setOnClickListener(this);
-		buttonPlay.setOnClickListener(this);
-		buttonNext.setOnClickListener(this);
-
-		bar = (ProgressBar)findViewById(R.id.album_image_loader);
-
-		albumImage = (ImageView)findViewById(R.id.album_image);
-		albumImage.setOnLongClickListener(new View.OnLongClickListener()
+	public void setDefaultAlbumImage()
+	{
+		showProgressBar(true);
+		runOnUiThread(new Runnable()
 		{
 
 			@Override
-			public boolean onLongClick(View v)
+			public void run()
 			{
-				UpdaterService.update(ClientService.clientAPI.getUpdate());
-				return false;
+				albumImage.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.default_album_image));
+				showProgressBar(false);
 			}
 		});
 	}
 
-	private void showNoConnectionAlert()
+	public void showProgressBar(final boolean show)
 	{
-		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-		alertDialogBuilder.setTitle("You are not connected");
-		alertDialogBuilder.setMessage("Please connect before using the buttons").setCancelable(false).setPositiveButton("Ok", null);
-		alertDialogBuilder.create().show();
+		runOnUiThread(new Runnable()
+		{
+			public void run()
+			{
+				if (show)
+				{
+					bar.setVisibility(View.VISIBLE);
+					albumImage.setVisibility(View.GONE);
+				}
+				else
+				{
+					bar.setVisibility(View.GONE);
+					albumImage.setVisibility(View.VISIBLE);
+				}
+
+			}
+		});
+
+	}
+
+	public void updateInfo(final String songInfo)
+	{
+		if (ClientService.clientAPI.isPlaying())
+		{
+			showProgressBar(true);
+			ClientService.stationList.firstLoadStationList();
+			new Thread(new Runnable()
+			{
+
+				@Override
+				public void run()
+				{
+					if (setSongText(songInfo))
+						showAlbumImage();
+					else
+					{
+						setSongText(getResources().getString(R.string.no_song_name));
+						setDefaultAlbumImage();
+					}
+				}
+			}).start();
+		}
+	}
+
+	public void showAlbumImage()
+	{
+		Caller.getInstance().setCache(null);
+
+		String coverString = null;
+		if (ClientService.clientAPI.getAlbumCoverEnabled())
+			coverString = ClientService.clientAPI.getAlbumCover();
+
+		if (coverString == null || coverString.trim().isEmpty())
+		{
+			setDefaultAlbumImage();
+			return;
+		}
+		setImage(coverString);
+	}
+
+	public void setUpdaterTimer()
+	{
+		Timer timer = new Timer();
+		timer.scheduleAtFixedRate(new UpdaterTask(), 0, 1000 * 60);
 	}
 
 	private void setImage(String url)
@@ -253,6 +319,68 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 
 		};
 		task.execute(url);
+	}
+
+	private void loadVariables()
+	{
+		super.startService(new Intent(this, ClientService.class)); // Start ClientAPI service
+		ClientService.mainActivity = this;
+
+		setupAlbumImage();
+		setupPlaybackButtons();
+		setStartVolume();
+	}
+
+	private void setStartVolume()
+	{
+		am = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+		if (ClientService.clientAPI != null)
+		{
+			int maxV = am.getStreamMaxVolume(AudioManager.STREAM_RING);
+			int curV = am.getStreamVolume(AudioManager.STREAM_RING);
+			ClientService.clientAPI.volume(curV * 100 / maxV);
+		}
+	}
+
+	private void setVolume(double percentage)
+	{
+		if (ClientService.clientAPI != null)
+		{
+			ClientService.clientAPI.volume(percentage);
+		}
+		else
+		{
+			showNoConnectionAlert();
+		}
+	}
+
+	private void setupAlbumImage()
+	{
+		bar = (ProgressBar)findViewById(R.id.album_image_loader);
+		songInfo = (TextView)findViewById(R.id.song_info);
+		albumImage = (ImageView)findViewById(R.id.album_image);
+		albumImage.setOnLongClickListener(this);
+	}
+
+	private void setupPlaybackButtons()
+	{
+		buttonPrev = (ImageButton)findViewById(R.id.prev);
+		buttonStop = (ImageButton)findViewById(R.id.stop);
+		buttonPlay = (ImageButton)findViewById(R.id.play);
+		buttonNext = (ImageButton)findViewById(R.id.next);
+
+		buttonPrev.setOnClickListener(this);
+		buttonStop.setOnClickListener(this);
+		buttonPlay.setOnClickListener(this);
+		buttonNext.setOnClickListener(this);
+	}
+
+	private void showNoConnectionAlert()
+	{
+		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+		alertDialogBuilder.setTitle("You are not connected");
+		alertDialogBuilder.setMessage("Please connect before using the buttons").setCancelable(false).setPositiveButton("Ok", null);
+		alertDialogBuilder.create().show();
 	}
 
 	private Bitmap downloadBitmap(String url)
@@ -326,83 +454,6 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 
 	}
 
-	public boolean setSongText(final String s)
-	{
-		if (s != null && !s.trim().isEmpty())
-		{
-			final TextView song = (TextView)findViewById(R.id.song_info);
-			runOnUiThread(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					song.setText(s);
-				}
-			});
-			return true;
-		}
-		return false;
-	}
-
-	public void showAlbumImage()
-	{
-		Caller.getInstance().setCache(null);
-
-		String coverString = null;
-		if (ClientService.clientAPI.getAlbumCoverEnabled())
-			coverString = ClientService.clientAPI.getAlbumCover();
-
-		if (coverString == null || coverString.trim().isEmpty())
-		{
-			setDefaultAlbumImage();
-			return;
-		}
-		setImage(coverString);
-	}
-
-	public void setUpdaterTimer()
-	{
-		Timer timer = new Timer();
-		timer.scheduleAtFixedRate(new UpdaterTask(), 0, 1000 * 60);
-	}
-
-	public void setDefaultAlbumImage()
-	{
-		showProgressBar(true);
-		runOnUiThread(new Runnable()
-		{
-
-			@Override
-			public void run()
-			{
-				albumImage.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.default_album_image));
-				showProgressBar(false);
-			}
-		});
-	}
-
-	public void showProgressBar(final boolean show)
-	{
-		runOnUiThread(new Runnable()
-		{
-			public void run()
-			{
-				if (show)
-				{
-					bar.setVisibility(View.VISIBLE);
-					albumImage.setVisibility(View.GONE);
-				}
-				else
-				{
-					bar.setVisibility(View.GONE);
-					albumImage.setVisibility(View.VISIBLE);
-				}
-
-			}
-		});
-
-	}
-
 	protected class UpdaterTask extends TimerTask
 	{
 		@Override
@@ -420,28 +471,4 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		}
 	}
 
-	public void updateInfo(final String songInfo2)
-	{
-
-		if (ClientService.clientAPI.isPlaying())
-		{
-			showProgressBar(true);
-			ClientService.stationList.firstLoadStationList();
-			new Thread(new Runnable()
-			{
-
-				@Override
-				public void run()
-				{
-					if (setSongText(songInfo2))
-						showAlbumImage();
-					else
-					{
-						setSongText(getResources().getString(R.string.no_song_name));
-						setDefaultAlbumImage();
-					}
-				}
-			}).start();
-		}
-	}
 }

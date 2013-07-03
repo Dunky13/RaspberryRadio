@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -86,6 +85,12 @@ public class StationSettingsActivity extends Activity implements OnClickListener
 
 	private void saveStation()
 	{
+		StationSettings setting = getSettings();
+		ClientService.stationList.add(setting);
+	}
+
+	private StationSettings getSettings()
+	{
 		String name, ip;
 		int id, pos;
 		StationSettings setting;
@@ -108,7 +113,7 @@ public class StationSettingsActivity extends Activity implements OnClickListener
 		name = ((EditText)findViewById(R.id.settings_station_name)).getText().toString();
 		ip = ((EditText)findViewById(R.id.settings_station_ip)).getText().toString();
 		setting = new StationSettings(id, name, ip, pos, StationList.DELIM);
-		ClientService.stationList.add(setting);
+		return setting;
 	}
 
 	private void showDeleteAlert()
@@ -121,32 +126,7 @@ public class StationSettingsActivity extends Activity implements OnClickListener
 			@Override
 			public void onClick(DialogInterface dialog, int which)
 			{
-				String name, ip;
-				int id, pos;
-				StationSettings setting;
-				try
-				{
-					id = Integer.parseInt(((TextView)findViewById(R.id.settings_station_id)).getText().toString());
-				}
-				catch (NumberFormatException e)
-				{
-					Log.e("DELETE_ERROR", e.getMessage());
-					finish();
-					return;
-				}
-				try
-				{
-					pos = Integer.parseInt(((TextView)findViewById(R.id.settings_station_pos)).getText().toString());
-				}
-				catch (NumberFormatException e)
-				{
-					pos = -1;
-					finish();
-					return;
-				}
-				name = ((EditText)findViewById(R.id.settings_station_name)).getText().toString();
-				ip = ((EditText)findViewById(R.id.settings_station_ip)).getText().toString();
-				setting = new StationSettings(id, name, ip, pos, StationList.DELIM);
+				StationSettings setting = getSettings();
 				ClientService.stationList.remove(setting);
 			}
 		}).setNegativeButton("Cancel", null);

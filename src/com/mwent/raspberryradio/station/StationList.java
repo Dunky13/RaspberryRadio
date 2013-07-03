@@ -117,7 +117,7 @@ public class StationList extends ListFragment implements OnClickListener, OnLong
 		}).start();
 	}
 
-	public void loadStationList()
+	private void loadStationList()
 	{
 		adapter.clear();
 		adapter.addAll(_stations);

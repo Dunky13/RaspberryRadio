@@ -60,6 +60,29 @@ public class ServerList extends ListFragment implements OnClickListener
 		setListAdapter(adapter);
 	}
 
+	@Override
+	public void onClick(View v)
+	{
+		ServerSettings settings = (ServerSettings)v.getTag();
+
+		if (ClientService.clientAPI != null)
+		{
+			ClientService.serverSettings = null;
+			ClientService.clientAPI.disconnect();
+		}
+
+		if (settings == ServerSettings.NEW_SERVER)
+		{
+			ClientService.serverSettings = ServerSettings.NEW_SERVER;
+			startActivity(new Intent(getActivity(), ServerSettingsActivity.class));
+		}
+		else
+		{
+			processServerClick(settings);
+
+		}
+	}
+
 	public void add(ServerSettings setting)
 	{
 		if (listHasSetting(servers, setting) >= 0)
@@ -95,7 +118,14 @@ public class ServerList extends ListFragment implements OnClickListener
 			write();
 			return;
 		}
+	}
 
+	private void loadServersList()
+	{
+		adapter.clear();
+		adapter.addAll(servers);
+
+		adapter.add(ServerSettings.NEW_SERVER);
 	}
 
 	private int getID()
@@ -116,52 +146,6 @@ public class ServerList extends ListFragment implements OnClickListener
 			}
 		}
 		return -1;
-	}
-
-	public void loadServersList()
-	{
-		adapter.clear();
-		adapter.addAll(servers);
-
-		adapter.add(ServerSettings.NEW_SERVER);
-	}
-
-	public class ServerSettingsAdapter extends ArrayAdapter<ServerSettings>
-	{
-
-		public ServerSettingsAdapter(Context context)
-		{
-			super(context, 0);
-		}
-
-		public View getView(int position, View convertView, ViewGroup parent)
-		{
-			if (convertView == null)
-			{
-				convertView = LayoutInflater.from(getContext()).inflate(R.layout.row, null);
-			}
-			//			ImageView icon = (ImageView)convertView.findViewById(R.id.row_icon);
-			//			icon.setImageResource(getItem(position).getImage());
-
-			Button title = (Button)convertView.findViewById(R.id.row_title);
-			title.setText(getItem(position).getName());
-			title.setCompoundDrawablesWithIntrinsicBounds(getItem(position).getImage(), 0, 0, 0);
-
-			convertView.setTag(getItem(position));
-			convertView.setOnClickListener(ClientService.serverList);
-			convertView.setOnLongClickListener(new OnLongClickListener()
-			{
-				@Override
-				public boolean onLongClick(View v)
-				{
-					ClientService.serverSettings = (ServerSettings)v.getTag();
-					startActivity(new Intent(getActivity(), ServerSettingsActivity.class));
-					return false;
-				}
-			});
-
-			return convertView;
-		}
 	}
 
 	private void read()
@@ -234,29 +218,6 @@ public class ServerList extends ListFragment implements OnClickListener
 		}
 	}
 
-	@Override
-	public void onClick(View v)
-	{
-		ServerSettings settings = (ServerSettings)v.getTag();
-
-		if (ClientService.clientAPI != null)
-		{
-			ClientService.serverSettings = null;
-			ClientService.clientAPI.disconnect();
-		}
-
-		if (settings == ServerSettings.NEW_SERVER)
-		{
-			ClientService.serverSettings = ServerSettings.NEW_SERVER;
-			startActivity(new Intent(getActivity(), ServerSettingsActivity.class));
-		}
-		else
-		{
-			processServerClick(settings);
-
-		}
-	}
-
 	private void processServerClick(ServerSettings settings)
 	{
 		ClientService.serverSettings = settings;
@@ -288,5 +249,43 @@ public class ServerList extends ListFragment implements OnClickListener
 		alertDialogBuilder.setTitle("Connection did not succeed");
 		alertDialogBuilder.setMessage(message).setCancelable(false).setPositiveButton("Ok", null);
 		alertDialogBuilder.create().show();
+	}
+
+	public class ServerSettingsAdapter extends ArrayAdapter<ServerSettings>
+	{
+
+		public ServerSettingsAdapter(Context context)
+		{
+			super(context, 0);
+		}
+
+		public View getView(int position, View convertView, ViewGroup parent)
+		{
+			if (convertView == null)
+			{
+				convertView = LayoutInflater.from(getContext()).inflate(R.layout.row, null);
+			}
+			//			ImageView icon = (ImageView)convertView.findViewById(R.id.row_icon);
+			//			icon.setImageResource(getItem(position).getImage());
+
+			Button title = (Button)convertView.findViewById(R.id.row_title);
+			title.setText(getItem(position).getName());
+			title.setCompoundDrawablesWithIntrinsicBounds(getItem(position).getImage(), 0, 0, 0);
+
+			convertView.setTag(getItem(position));
+			convertView.setOnClickListener(ClientService.serverList);
+			convertView.setOnLongClickListener(new OnLongClickListener()
+			{
+				@Override
+				public boolean onLongClick(View v)
+				{
+					ClientService.serverSettings = (ServerSettings)v.getTag();
+					startActivity(new Intent(getActivity(), ServerSettingsActivity.class));
+					return false;
+				}
+			});
+
+			return convertView;
+		}
 	}
 }
