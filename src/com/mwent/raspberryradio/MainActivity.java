@@ -419,4 +419,29 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 			});
 		}
 	}
+
+	public void updateInfo(final String songInfo2)
+	{
+
+		if (ClientService.clientAPI.isPlaying())
+		{
+			showProgressBar(true);
+			ClientService.stationList.firstLoadStationList();
+			new Thread(new Runnable()
+			{
+
+				@Override
+				public void run()
+				{
+					if (setSongText(songInfo2))
+						showAlbumImage();
+					else
+					{
+						setSongText(getResources().getString(R.string.no_song_name));
+						setDefaultAlbumImage();
+					}
+				}
+			}).start();
+		}
+	}
 }

@@ -17,32 +17,12 @@ public class UpdaterService extends Service
 		update(songInfo);
 	}
 
-	public static void update(final String songInfo)
+	public static void update(String songInfo)
 	{
 		if (!previousSong.equals(songInfo))
 		{
 			previousSong = songInfo;
-			if (ClientService.clientAPI.isPlaying())
-			{
-				ClientService.mainActivity.showProgressBar(true);
-				ClientService.stationList.firstLoadStationList();
-				new Thread(new Runnable()
-				{
-
-					@Override
-					public void run()
-					{
-						if (ClientService.mainActivity.setSongText(songInfo))
-							ClientService.mainActivity.showAlbumImage();
-						else
-						{
-							ClientService.mainActivity.setSongText(ClientService.mainActivity.getResources().getString(
-								R.string.no_song_name));
-							ClientService.mainActivity.setDefaultAlbumImage();
-						}
-					}
-				}).start();
-			}
+			ClientService.mainActivity.updateInfo(songInfo);
 		}
 	}
 
