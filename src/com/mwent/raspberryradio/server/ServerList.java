@@ -11,7 +11,6 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -26,10 +25,10 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.mwent.RaspberryRadio.client.AndroidClient;
 import com.mwent.raspberryradio.ClientService;
 import com.mwent.raspberryradio.R;
+import com.mwent.raspberryradio.UpdaterService;
 import com.mwent.raspberryradio.server.ServerSettings.ServerSettingsException;
 
 public class ServerList extends ListFragment implements OnClickListener
@@ -253,28 +252,33 @@ public class ServerList extends ListFragment implements OnClickListener
 		}
 		else
 		{
-			ClientService.serverSettings = settings;
-			ClientService.clientAPI = new AndroidClient(settings.getIp(), settings.getPort());
-			ClientService.clientAPI.enableAlbumCovers();
-			try
-			{
-				ClientService.clientAPI.connect(settings.getUsername(), settings.getPassword());
-//				ClientService.mainActivity.setUpdaterAlarm();
-				ClientService.mainActivity.setUpdaterTimer();
-			}
-			catch (Exception e)
-			{
-				showLoginErrorAlert(e.getMessage());
-				return;
-			}
+			processServerClick(settings);
 
-			ClientService.stationList.firstLoadStationList();
-			if (ClientService.mainActivity != null)
-			{
-				ClientService.mainActivity.toggle();
-				ClientService.mainActivity.setSongText(ClientService.clientAPI.getUpdate());
-			}
+		}
+	}
 
+	private void processServerClick(ServerSettings settings)
+	{
+		ClientService.serverSettings = settings;
+		ClientService.clientAPI = new AndroidClient(settings.getIp(), settings.getPort());
+		try
+		{
+			ClientService.clientAPI.connect(settings.getUsername(), settings.getPassword());
+		}
+		catch (Exception e)
+		{
+			showLoginErrorAlert(e.getMessage());
+			return;
+		}
+
+		ClientService.clientAPI.enableAlbumCovers();
+		ClientService.stationList.firstLoadStationList();
+
+		if (ClientService.mainActivity != null)
+		{
+			ClientService.mainActivity.setUpdaterTimer();
+			ClientService.mainActivity.toggle();
+			UpdaterService.update(ClientService.clientAPI.getUpdate());
 		}
 	}
 

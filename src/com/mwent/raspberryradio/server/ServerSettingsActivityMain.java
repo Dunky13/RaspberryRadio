@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -13,31 +12,31 @@ import android.widget.TextView;
 import com.mwent.raspberryradio.ClientService;
 import com.mwent.raspberryradio.R;
 
-public class ServerSettingsActivity extends Activity implements OnClickListener
+public class ServerSettingsActivityMain extends Activity implements OnClickListener
 {
 
-	Button cancel, save, delete;
+	Button cancel, save, disconnect;
 
 	@Override
 	public void onCreate(Bundle b)
 	{
 		super.onCreate(b);
-		setContentView(R.layout.activity_server_settings);
+		setContentView(R.layout.activity_server_settings_main);
 		//		findViewById(R.id.settings_layout).clearFocus();
-		cancel = (Button)findViewById(R.id.settings_cancel);
-		cancel.setOnClickListener(this);
-
-		save = (Button)findViewById(R.id.settings_save);
-		save.setOnClickListener(this);
-
-		delete = (Button)findViewById(R.id.settings_delete);
-		delete.setOnClickListener(this);
 
 		if (ClientService.serverSettings != null)
 		{
 			fillSettings();
 		}
 
+		cancel = (Button)findViewById(R.id.settings_cancel);
+		cancel.setOnClickListener(this);
+
+		save = (Button)findViewById(R.id.settings_save);
+		save.setOnClickListener(this);
+
+		disconnect = (Button)findViewById(R.id.settings_disconnect);
+		disconnect.setOnClickListener(this);
 	}
 
 	private void fillSettings()
@@ -49,25 +48,12 @@ public class ServerSettingsActivity extends Activity implements OnClickListener
 		EditText serverIp = (EditText)findViewById(R.id.settings_server_ip);
 		EditText serverPort = (EditText)findViewById(R.id.settings_server_port);
 
-		if (ClientService.serverSettings != ServerSettings.NEW_SERVER)
-		{
-			id.setText(ClientService.serverSettings.getId() + "");
-			serverName.setText(ClientService.serverSettings.getName());
-			username.setText(ClientService.serverSettings.getUsername());
-			password.setText(ClientService.serverSettings.getPassword());
-			serverIp.setText(ClientService.serverSettings.getIp());
-			serverPort.setText(ClientService.serverSettings.getPort() + "");
-		}
-		else
-		{
-			delete.setVisibility(View.GONE);
-			id.setText("");
-			serverName.setText("");
-			username.setText("");
-			password.setText("");
-			serverIp.setText("");
-			serverPort.setText("");
-		}
+		id.setText(ClientService.serverSettings.getId() + "");
+		serverName.setText(ClientService.serverSettings.getName());
+		username.setText(ClientService.serverSettings.getUsername());
+		password.setText(ClientService.serverSettings.getPassword());
+		serverIp.setText(ClientService.serverSettings.getIp());
+		serverPort.setText(ClientService.serverSettings.getPort() + "");
 	}
 
 	@Override
@@ -105,43 +91,29 @@ public class ServerSettingsActivity extends Activity implements OnClickListener
 				ClientService.serverList.replace(setting);
 			finish();
 			return;
-		case R.id.settings_delete:
-			showDeleteAlert();
+		case R.id.settings_disconnect:
+			showDisconnectAlert();
 			finish();
 			return;
 		}
 	}
 
-	private void showDeleteAlert()
+	private void showDisconnectAlert()
 	{
 		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ClientService.mainActivity);
-		alertDialogBuilder.setTitle("Are you sure you want to delete");
+		alertDialogBuilder.setTitle("Are you sure you want to disconnect?");
 		alertDialogBuilder.setCancelable(false).setPositiveButton("Ok", new DialogInterface.OnClickListener()
 		{
 
 			@Override
 			public void onClick(DialogInterface dialog, int which)
 			{
-				String name, username, password, ip;
-				int id, port;
-				ServerSettings setting;
-				try
+				if (ClientService.clientAPI.is_connected())
 				{
-					id = Integer.parseInt(((TextView)findViewById(R.id.settings_server_id)).getText().toString());
+					ClientService.clientAPI.disconnect();
+					ClientService.mainActivity.toggle();
 				}
-				catch (NumberFormatException e)
-				{
-					Log.e("DELETE_ERROR", e.getMessage());
-					finish();
-					return;
-				}
-				name = ((EditText)findViewById(R.id.settings_servername)).getText().toString();
-				username = ((EditText)findViewById(R.id.settings_username)).getText().toString();
-				password = ((EditText)findViewById(R.id.settings_password)).getText().toString();
-				ip = ((EditText)findViewById(R.id.settings_server_ip)).getText().toString();
-				port = Integer.parseInt(((EditText)findViewById(R.id.settings_server_port)).getText().toString());
-				setting = new ServerSettings(id, name, ip, port, username, password, ServerList.DELIM);
-				ClientService.serverList.remove(setting);
+
 			}
 		}).setNegativeButton("Cancel", null);
 		alertDialogBuilder.create().show();

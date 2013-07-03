@@ -4,27 +4,45 @@
     android:id="@+id/pager"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="top"
     android:orientation="vertical"
     tools:context=".MainActivity" >
 
-    <ImageView
-        android:id="@+id/album_image"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="4.59"
-        android:contentDescription="@string/album_image"
         android:gravity="center_vertical|center_horizontal"
         android:scaleType="fitCenter"
-        android:src="@drawable/default_album_image" />
+        >
+
+        <ImageView
+            android:id="@+id/album_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/album_image"
+            android:gravity="center_vertical|center_horizontal"
+            android:scaleType="fitCenter"
+            android:src="@drawable/default_album_image" />
+
+        <ProgressBar
+            android:id="@+id/album_image_loader"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:visibility="gone" />
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/song_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="@string/song_name"
         android:paddingBottom="5dip"
-        android:paddingTop="5dip" />
+        android:paddingTop="5dip"
+        android:text="@string/no_song_playing" />
 
     <View
         android:id="@+id/button_dividerHorizontal"

@@ -8,7 +8,6 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -101,8 +100,23 @@ public class StationList extends ListFragment implements OnClickListener
 
 	public void firstLoadStationList()
 	{
-		read();
-		loadStationList();
+		new Thread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				read();
+				ClientService.mainActivity.runOnUiThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						loadStationList();
+					}
+				});
+
+			}
+		}).start();
 	}
 
 	public void loadStationList()
@@ -217,15 +231,19 @@ public class StationList extends ListFragment implements OnClickListener
 		}
 		else
 		{
-			ClientService.stationSettings = settings;
+			processStationClick(settings);
 
-			if (ClientService.mainActivity != null)
-			{
-				UpdaterService.update(ClientService.clientAPI.setStation(settings.getPos()));
-				ClientService.mainActivity.toggle();
-				//ClientService.mainActivity.setSongText(ClientService.clientAPI.getUpdate());
-			}
+		}
+	}
 
+	private void processStationClick(StationSettings settings)
+	{
+		ClientService.stationSettings = settings;
+
+		if (ClientService.mainActivity != null)
+		{
+			ClientService.mainActivity.toggle();
+			UpdaterService.update(ClientService.clientAPI.setStation(settings.getPos()));
 		}
 	}
 }
