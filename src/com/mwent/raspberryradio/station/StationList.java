@@ -1,10 +1,5 @@
 package com.mwent.raspberryradio.station;
 
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,9 +21,8 @@ import com.mwent.raspberryradio.ClientService;
 import com.mwent.raspberryradio.R;
 import com.mwent.raspberryradio.UpdaterService;
 
-public class StationList extends ListFragment implements OnClickListener
+public class StationList extends ListFragment implements OnClickListener, OnLongClickListener
 {
-	private static final String _serverFileName = "servers";
 	public static final char DELIM = ';';
 	private List<StationSettings> _stations;
 	private List<Integer> stationsIds;
@@ -54,6 +48,30 @@ public class StationList extends ListFragment implements OnClickListener
 		setListAdapter(adapter);
 	}
 
+	@Override
+	public void onClick(View v)
+	{
+		StationSettings settings = (StationSettings)v.getTag();
+
+		if (settings == StationSettings.NEW_STATION)
+		{
+			ClientService.stationSettings = StationSettings.NEW_STATION;
+			startActivity(new Intent(getActivity(), StationSettingsActivity.class));
+		}
+		else
+		{
+			processStationClick(settings);
+
+		}
+	}
+
+	@Override
+	public boolean onLongClick(View v)
+	{
+		firstLoadStationList();
+		return false;
+	}
+
 	public void add(StationSettings setting)
 	{
 		setting.setId(getID());
@@ -76,26 +94,6 @@ public class StationList extends ListFragment implements OnClickListener
 			return;
 		}
 
-	}
-
-	private int getID()
-	{
-		Collections.sort(stationsIds);
-		return stationsIds.get(stationsIds.size() - 1) + 1;
-	}
-
-	private int listHasSetting(List<StationSettings> list, StationSettings setting)
-	{
-		StationSettings orig;
-		for (int i = 0; i < _stations.size(); i++)
-		{
-			orig = _stations.get(i);
-			if (orig.equals(setting))
-			{
-				return i;
-			}
-		}
-		return -1;
 	}
 
 	public void firstLoadStationList()
@@ -125,6 +123,64 @@ public class StationList extends ListFragment implements OnClickListener
 		adapter.addAll(_stations);
 
 		adapter.add(StationSettings.NEW_STATION);
+	}
+
+	private int getID()
+	{
+		Collections.sort(stationsIds);
+		return stationsIds.get(stationsIds.size() - 1) + 1;
+	}
+
+	private int listHasSetting(List<StationSettings> list, StationSettings setting)
+	{
+		StationSettings orig;
+		for (int i = 0; i < _stations.size(); i++)
+		{
+			orig = _stations.get(i);
+			if (orig.equals(setting))
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	private void read()
+	{
+
+		_stations = new ArrayList<StationSettings>();
+		stationsIds = new ArrayList<Integer>();
+		if (ClientService.clientAPI == null)
+			return;
+		List<CommandStationList> stations = ClientService.clientAPI.listAll();
+
+		for (CommandStationList station : stations)
+		{
+			String name = station.getName().trim().isEmpty() ? station.getHost() : station.getName();
+			StationSettings setting = new StationSettings(0, name, station.getHost(), station.getPos(), DELIM);
+			if (stationsIds.contains(setting.getId()))
+			{
+				int last = getID();
+				setting.setId(last);
+				stationsIds.add(last);
+			}
+			else
+			{
+				stationsIds.add(setting.getId());
+			}
+			_stations.add(setting);
+		}
+	}
+
+	private void processStationClick(StationSettings settings)
+	{
+		ClientService.stationSettings = settings;
+
+		if (ClientService.mainActivity != null)
+		{
+			ClientService.mainActivity.toggle();
+			UpdaterService.update(ClientService.clientAPI.setStation(settings.getPos()));
+		}
 	}
 
 	public class ServerSettingsAdapter extends ArrayAdapter<StationSettings>
@@ -163,87 +219,4 @@ public class StationList extends ListFragment implements OnClickListener
 		}
 	}
 
-	private void read()
-	{
-
-		_stations = new ArrayList<StationSettings>();
-		stationsIds = new ArrayList<Integer>();
-		if (ClientService.clientAPI == null)
-			return;
-		List<CommandStationList> stations = ClientService.clientAPI.listAll();
-
-		for (CommandStationList station : stations)
-		{
-			String name = station.getName().trim().isEmpty() ? station.getHost() : station.getName();
-			StationSettings setting = new StationSettings(0, name, station.getHost(), station.getPos(), DELIM);
-			if (stationsIds.contains(setting.getId()))
-			{
-				int last = getID();
-				setting.setId(last);
-				stationsIds.add(last);
-			}
-			else
-			{
-				stationsIds.add(setting.getId());
-			}
-			_stations.add(setting);
-		}
-	}
-
-	public void write()
-	{
-		try
-		{
-			FileOutputStream fos = getActivity().openFileOutput(_serverFileName, Context.MODE_PRIVATE);
-
-			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
-			for (StationSettings server : _stations)
-			{
-				//				Log.d(server.getName(), server.isWritable() + "");
-				if (server.isWritable())
-				{
-					bw.write(server.toString());
-					bw.write("\r\n");
-				}
-			}
-			bw.close();
-			fos.close();
-		}
-		catch (FileNotFoundException e)
-		{
-			e.printStackTrace();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public void onClick(View v)
-	{
-		StationSettings settings = (StationSettings)v.getTag();
-
-		if (settings == StationSettings.NEW_STATION)
-		{
-			ClientService.stationSettings = StationSettings.NEW_STATION;
-			startActivity(new Intent(getActivity(), StationSettingsActivity.class));
-		}
-		else
-		{
-			processStationClick(settings);
-
-		}
-	}
-
-	private void processStationClick(StationSettings settings)
-	{
-		ClientService.stationSettings = settings;
-
-		if (ClientService.mainActivity != null)
-		{
-			ClientService.mainActivity.toggle();
-			UpdaterService.update(ClientService.clientAPI.setStation(settings.getPos()));
-		}
-	}
 }
