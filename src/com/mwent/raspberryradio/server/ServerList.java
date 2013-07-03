@@ -69,6 +69,7 @@ public class ServerList extends ListFragment implements OnClickListener
 		{
 			ClientService.serverSettings = null;
 			ClientService.clientAPI.disconnect();
+			ClientService.clientAPI = null;
 		}
 
 		if (settings == ServerSettings.NEW_SERVER)
