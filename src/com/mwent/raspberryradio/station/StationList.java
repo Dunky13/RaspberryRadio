@@ -26,7 +26,7 @@ public class StationList extends ListFragment implements OnClickListener, OnLong
 	public static final char DELIM = ';';
 	private List<StationSettings> _stations;
 	private List<Integer> stationsIds;
-	private ServerSettingsAdapter adapter;
+	private StationSettingsAdapter adapter;
 
 	ImageView albumImage;
 	TextView songInfo;
@@ -41,7 +41,7 @@ public class StationList extends ListFragment implements OnClickListener, OnLong
 		super.onActivityCreated(savedInstanceState);
 		ClientService.stationList = this;
 
-		adapter = new ServerSettingsAdapter(getActivity());
+		adapter = new StationSettingsAdapter(getActivity());
 		read();
 		loadStationList();
 
@@ -65,10 +65,11 @@ public class StationList extends ListFragment implements OnClickListener, OnLong
 		}
 	}
 
-	@Override
 	public boolean onLongClick(View v)
 	{
-		firstLoadStationList();
+		if(v.getId() != R.id.list_item){
+			firstLoadStationList();
+		}
 		return false;
 	}
 
@@ -183,10 +184,10 @@ public class StationList extends ListFragment implements OnClickListener, OnLong
 		}
 	}
 
-	public class ServerSettingsAdapter extends ArrayAdapter<StationSettings>
+	public class StationSettingsAdapter extends ArrayAdapter<StationSettings>
 	{
 
-		public ServerSettingsAdapter(Context context)
+		public StationSettingsAdapter(Context context)
 		{
 			super(context, 0);
 		}
@@ -198,7 +199,7 @@ public class StationList extends ListFragment implements OnClickListener, OnLong
 				convertView = LayoutInflater.from(getContext()).inflate(R.layout.row, null);
 			}
 
-			Button title = (Button)convertView.findViewById(R.id.row_title);
+			Button title = (Button)convertView.findViewById(R.id.list_item);
 			title.setText(getItem(position).getName());
 			title.setCompoundDrawablesWithIntrinsicBounds(getItem(position).getImage(), 0, 0, 0);
 

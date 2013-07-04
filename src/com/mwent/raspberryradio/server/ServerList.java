@@ -271,7 +271,7 @@ public class ServerList extends ListFragment implements OnClickListener
 			//			ImageView icon = (ImageView)convertView.findViewById(R.id.row_icon);
 			//			icon.setImageResource(getItem(position).getImage());
 
-			Button title = (Button)convertView.findViewById(R.id.row_title);
+			Button title = (Button)convertView.findViewById(R.id.list_item);
 			title.setText(getItem(position).getName());
 			title.setCompoundDrawablesWithIntrinsicBounds(getItem(position).getImage(), 0, 0, 0);
 
