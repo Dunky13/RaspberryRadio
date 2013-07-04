@@ -13,8 +13,17 @@ public class UpdaterService extends Service
 	public void onCreate()
 	{
 		super.onCreate();
-		String songInfo = ClientService.clientAPI.getUpdate();
-		update(songInfo);
+		if(ClientService.clientAPI != null){
+			String songInfo = ClientService.clientAPI.getUpdate();
+			update(songInfo);
+		}
+	}
+	
+
+	@Override
+	public void onDestroy()
+	{
+		super.onDestroy();
 	}
 
 	public static void update(String songInfo)
@@ -47,14 +56,23 @@ public class UpdaterService extends Service
 	}
 
 	@Override
-	public void onDestroy()
-	{
-		super.onDestroy();
-	}
-
-	@Override
 	public IBinder onBind(Intent intent)
 	{
 		return null;
+	}
+
+	@Override
+	public void onRebind(Intent intent) {
+		super.onRebind(intent);
+	}
+
+	@Override
+	public boolean onUnbind(Intent intent) {
+		return super.onUnbind(intent);
+	}
+
+
+	public static void emptySongInfo() {
+		previousSong = "";
 	}
 }

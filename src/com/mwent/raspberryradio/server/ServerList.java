@@ -233,6 +233,8 @@ public class ServerList extends ListFragment implements OnClickListener
 			return;
 		}
 
+		ClientService.mainActivity.startService(new Intent(ClientService.mainActivity, UpdaterService.class)); // Start updater service
+
 		ClientService.clientAPI.enableAlbumCovers();
 		ClientService.stationList.firstLoadStationList();
 

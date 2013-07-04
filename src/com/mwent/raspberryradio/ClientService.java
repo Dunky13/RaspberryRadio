@@ -30,17 +30,27 @@ public class ClientService extends Service
 	@Override
 	public void onDestroy()
 	{
-		super.onDestroy();
 		if (clientAPI.is_connected())
 		{
 			clientAPI.disconnect();
 		}
 		clientAPI = null;
+		super.onDestroy();
+	}
+
+	@Override
+	public void onRebind(Intent intent) {
+		super.onRebind(intent);
 	}
 
 	@Override
 	public IBinder onBind(Intent intent)
 	{
 		return null;
+	}
+
+	@Override
+	public boolean onUnbind(Intent intent) {
+		return super.onUnbind(intent);
 	}
 }
