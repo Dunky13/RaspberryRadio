@@ -17,6 +17,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
@@ -237,6 +238,13 @@ public class ServerList extends ListFragment implements OnClickListener
 			return;
 		}
 
+		// show the settings menu button when connected to the server
+		if(ClientService.mainActivity.menu != null)
+		{
+			MenuItem item = ClientService.mainActivity.menu.findItem(R.id.action_settings);
+			item.setVisible(true);
+		}
+		
 		// Start the updater
 		ClientService.mainActivity.startService(new Intent(ClientService.mainActivity, UpdaterService.class)); // Start updater service
 		ClientService.clientAPI.enableAlbumCovers();

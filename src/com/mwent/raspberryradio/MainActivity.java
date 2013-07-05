@@ -3,10 +3,12 @@ package com.mwent.raspberryradio;
 import java.io.InputStream;
 import java.util.Timer;
 import java.util.TimerTask;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -29,16 +31,19 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 import com.mwent.raspberryradio.server.ServerList;
 import com.mwent.raspberryradio.server.ServerSettingsActivity;
 import com.mwent.raspberryradio.station.StationList;
+
 import de.umass.lastfm.Caller;
 
 public class MainActivity extends SlidingFragmentActivity implements OnClickListener, OnLongClickListener
 {
-
+	public static final String TAG = "MainActivity"; // logging tag
+	
 	protected ListFragment mFrag;
 
 	private ImageButton buttonPrev, buttonStop, buttonPlay, buttonNext;
@@ -47,6 +52,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	private TextView songInfo;
 
 	private AudioManager am;
+	public Menu menu;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -89,6 +95,12 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	@Override
 	protected void onResume()
 	{
+//		// hide the settings menu button when not connected to the server
+//		if(ClientService.clientAPI == null && this.menu != null)
+//		{
+//			MenuItem item = this.menu.findItem(R.id.action_settings);
+//			item.setVisible(false);
+//		}
 		super.onResume();
 	}
 	
@@ -112,6 +124,9 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
 		getMenuInflater().inflate(R.menu.main, menu);
+		MenuItem item = menu.findItem(R.id.action_settings);
+		item.setVisible(false);
+		this.menu = menu;
 		return true;
 	}
 

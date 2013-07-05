@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -17,6 +18,7 @@ import com.mwent.raspberryradio.R;
 
 public class ServerSettingsActivity extends Activity implements OnClickListener
 {
+	public static final String TAG = "ServerSettingsActivity";
 
 	Button cancel, save, delete, disconnect;
 	boolean deleteButton;
@@ -216,6 +218,12 @@ public class ServerSettingsActivity extends Activity implements OnClickListener
 					ClientService.mainActivity.toggle();
 				}
 
+				// hide server settings button in the main screen on disconnect
+				if(ClientService.mainActivity.menu != null)
+				{
+					MenuItem item = ClientService.mainActivity.menu.findItem(R.id.action_settings);
+					item.setVisible(false);
+				}
 			}
 		}).setNegativeButton("Cancel", null);
 		alertDialogBuilder.create().show();
