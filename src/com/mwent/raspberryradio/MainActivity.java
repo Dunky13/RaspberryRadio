@@ -80,16 +80,16 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	protected void onStart()
 	{
 		super.onStart();
+		if (ClientService.clientAPI != null) 
+		{
+			UpdaterService.update(ClientService.clientAPI.getUpdate());
+		}
 	}
 
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
-		if (ClientService.clientAPI != null) 
-		{
-			UpdaterService.update(ClientService.clientAPI.getUpdate());
-		}
 	}
 	
 	@Override
