@@ -33,8 +33,28 @@ public class StationSettingsActivity extends Activity implements OnClickListener
 		delete.setOnClickListener(this);
 
 		if (ClientService.stationSettings != null)
+		{
 			fillSettings();
+		}
+	}
+	
+	@Override
+	protected void onPause() 
+	{
+		super.onPause();
+	}
 
+	@Override
+	protected void onResume() 
+	{
+		super.onResume();
+	}
+
+	@Override
+	protected void onStop() 
+	{
+		finish();
+		super.onStop();
 	}
 
 	private void fillSettings()
