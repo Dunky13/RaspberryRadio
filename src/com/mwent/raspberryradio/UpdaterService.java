@@ -13,7 +13,8 @@ public class UpdaterService extends Service
 	public void onCreate()
 	{
 		super.onCreate();
-		if(ClientService.clientAPI != null){
+		if(ClientService.clientAPI != null)
+		{
 			String songInfo = ClientService.clientAPI.getUpdate();
 			update(songInfo);
 		}
@@ -62,17 +63,19 @@ public class UpdaterService extends Service
 	}
 
 	@Override
-	public void onRebind(Intent intent) {
+	public void onRebind(Intent intent) 
+	{
 		super.onRebind(intent);
 	}
 
 	@Override
-	public boolean onUnbind(Intent intent) {
+	public boolean onUnbind(Intent intent) 
+	{
 		return super.onUnbind(intent);
 	}
 
-
-	public static void emptySongInfo() {
+	public static void emptySongInfo() 
+	{
 		previousSong = "";
 	}
 }

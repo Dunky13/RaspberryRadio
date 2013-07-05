@@ -53,7 +53,25 @@ public class ServerSettingsActivity extends Activity implements OnClickListener
 		{
 			fillSettings();
 		}
+	}
+	
+	@Override
+	protected void onPause() 
+	{
+		super.onPause();
+	}
 
+	@Override
+	protected void onResume() 
+	{
+		super.onResume();
+	}
+
+	@Override
+	protected void onStop() 
+	{
+		finish();
+		super.onStop();
 	}
 
 	@Override

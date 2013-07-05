@@ -127,7 +127,6 @@ public class ServerList extends ListFragment implements OnClickListener
 	{
 		adapter.clear();
 		adapter.addAll(servers);
-
 		adapter.add(ServerSettings.NEW_SERVER);
 	}
 

@@ -80,23 +80,31 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	protected void onStart()
 	{
 		super.onStart();
-		if (ClientService.clientAPI != null)
-			UpdaterService.update(ClientService.clientAPI.getUpdate());
 	}
 
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
+		if (ClientService.clientAPI != null) 
+		{
+			UpdaterService.update(ClientService.clientAPI.getUpdate());
+		}
+	}
+	
+	@Override
+	protected void onPause()
+	{
+		UpdaterService.emptySongInfo();
+		super.onPause();
 	}
 
 	@Override
 	protected void onStop()
 	{
-		finish();
+		// 		finish();
 		//		super.stopService(new Intent(this, ClientService.class)); // Stop ClientAPI service
 		//		super.stopService(new Intent(this, UpdaterService.class)); // Stop updater service
-		UpdaterService.emptySongInfo();
 		super.onStop();
 	}
 
@@ -255,10 +263,8 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 					bar.setVisibility(View.GONE);
 					albumImage.setVisibility(View.VISIBLE);
 				}
-
 			}
 		});
-
 	}
 
 	public void updateInfo(final String songInfo)
@@ -269,7 +275,6 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 			ClientService.stationList.firstLoadStationList();
 			new Thread(new Runnable()
 			{
-
 				@Override
 				public void run()
 				{
@@ -291,8 +296,9 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 
 		String coverString = null;
 		if (ClientService.clientAPI.getAlbumCoverEnabled())
+		{
 			coverString = ClientService.clientAPI.getAlbumCover();
-
+		}
 		if (coverString == null || coverString.trim().isEmpty())
 		{
 			setDefaultAlbumImage();
@@ -471,7 +477,6 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 
 		transaction.replace(R.id.left_frame, new ServerList()); //LEFT
 		transaction.replace(R.id.right_frame, new StationList()); //RIGHT
-
 	}
 
 	protected class UpdaterTask extends TimerTask
@@ -491,5 +496,4 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 			});
 		}
 	}
-
 }

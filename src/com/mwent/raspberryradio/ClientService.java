@@ -39,7 +39,8 @@ public class ClientService extends Service
 	}
 
 	@Override
-	public void onRebind(Intent intent) {
+	public void onRebind(Intent intent) 
+	{
 		super.onRebind(intent);
 	}
 
@@ -50,7 +51,8 @@ public class ClientService extends Service
 	}
 
 	@Override
-	public boolean onUnbind(Intent intent) {
+	public boolean onUnbind(Intent intent) 
+	{
 		return super.onUnbind(intent);
 	}
 }
