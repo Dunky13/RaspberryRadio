@@ -95,7 +95,6 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	@Override
 	protected void onPause()
 	{
-		UpdaterService.emptySongInfo();
 		super.onPause();
 	}
 
@@ -105,6 +104,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		// 		finish();
 		//		super.stopService(new Intent(this, ClientService.class)); // Stop ClientAPI service
 		//		super.stopService(new Intent(this, UpdaterService.class)); // Stop updater service
+		UpdaterService.emptySongInfo();
 		super.onStop();
 	}
 
