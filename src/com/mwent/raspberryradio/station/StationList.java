@@ -67,7 +67,8 @@ public class StationList extends ListFragment implements OnClickListener, OnLong
 
 	public boolean onLongClick(View v)
 	{
-		if(v.getId() != R.id.list_item){
+		if (v.getId() != R.id.list_item)
+		{
 			firstLoadStationList();
 		}
 		return false;

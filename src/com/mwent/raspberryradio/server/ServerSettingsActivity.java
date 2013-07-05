@@ -16,12 +16,15 @@ import com.mwent.raspberryradio.R;
 public class ServerSettingsActivity extends Activity implements OnClickListener
 {
 
-	Button cancel, save, delete;
+	Button cancel, save, delete, disconnect;
+	boolean deleteButton;
 
 	@Override
 	public void onCreate(Bundle b)
 	{
 		super.onCreate(b);
+
+		deleteButton = getIntent().getBooleanExtra("delete", true);
 		setContentView(R.layout.activity_server_settings);
 		//		findViewById(R.id.settings_layout).clearFocus();
 		cancel = (Button)findViewById(R.id.settings_cancel);
@@ -31,7 +34,20 @@ public class ServerSettingsActivity extends Activity implements OnClickListener
 		save.setOnClickListener(this);
 
 		delete = (Button)findViewById(R.id.settings_delete);
-		delete.setOnClickListener(this);
+		disconnect = (Button)findViewById(R.id.settings_disconnect);
+
+		if (deleteButton)
+		{
+			delete.setOnClickListener(this);
+			delete.setVisibility(View.VISIBLE);
+			disconnect.setVisibility(View.GONE);
+		}
+		else
+		{
+			disconnect.setOnClickListener(this);
+			disconnect.setVisibility(View.VISIBLE);
+			delete.setVisibility(View.GONE);
+		}
 
 		if (ClientService.serverSettings != null)
 		{
@@ -54,6 +70,10 @@ public class ServerSettingsActivity extends Activity implements OnClickListener
 			return;
 		case R.id.settings_delete:
 			showDeleteAlert();
+			finish();
+			return;
+		case R.id.settings_disconnect:
+			showDisconnectAlert();
 			finish();
 			return;
 		}
@@ -142,6 +162,29 @@ public class ServerSettingsActivity extends Activity implements OnClickListener
 			{
 				ServerSettings setting = getSetting(true);
 				ClientService.serverList.remove(setting);
+			}
+		}).setNegativeButton("Cancel", null);
+		alertDialogBuilder.create().show();
+	}
+
+	private void showDisconnectAlert()
+	{
+		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ClientService.mainActivity);
+		alertDialogBuilder.setTitle("Are you sure you want to disconnect?");
+		alertDialogBuilder.setCancelable(false).setPositiveButton("Ok", new DialogInterface.OnClickListener()
+		{
+
+			@Override
+			public void onClick(DialogInterface dialog, int which)
+			{
+				if (ClientService.clientAPI.is_connected())
+				{
+					ClientService.clientAPI.disconnect();
+					ClientService.mainActivity.setSongText(getResources().getString(R.string.no_song_playing));
+					ClientService.mainActivity.setDefaultAlbumImage();
+					ClientService.mainActivity.toggle();
+				}
+
 			}
 		}).setNegativeButton("Cancel", null);
 		alertDialogBuilder.create().show();

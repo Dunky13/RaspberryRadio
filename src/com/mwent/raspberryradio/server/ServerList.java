@@ -75,7 +75,9 @@ public class ServerList extends ListFragment implements OnClickListener
 		if (settings == ServerSettings.NEW_SERVER)
 		{
 			ClientService.serverSettings = ServerSettings.NEW_SERVER;
-			startActivity(new Intent(getActivity(), ServerSettingsActivity.class));
+			Intent intent = new Intent(getActivity(), ServerSettingsActivity.class);
+			intent.putExtra("delete", true);
+			startActivity(intent);
 		}
 		else
 		{
@@ -283,7 +285,9 @@ public class ServerList extends ListFragment implements OnClickListener
 				public boolean onLongClick(View v)
 				{
 					ClientService.serverSettings = (ServerSettings)v.getTag();
-					startActivity(new Intent(getActivity(), ServerSettingsActivity.class));
+					Intent intent = new Intent(getActivity(), ServerSettingsActivity.class);
+					intent.putExtra("delete", true);
+					startActivity(intent);
 					return false;
 				}
 			});

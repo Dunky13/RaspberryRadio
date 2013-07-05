@@ -156,6 +156,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/delete" />
+        <Button
+            android:id="@+id/settings_disconnect"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/disconnect" 
+            android:visibility="gone"/>
 
         <View
             android:id="@+id/button_dividerVertical2"
