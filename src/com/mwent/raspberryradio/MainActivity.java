@@ -50,7 +50,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 {
 	public static final String TAG = "MainActivity"; // logging tag
 	
-	public static int notificationId = -1; // used to update notification text in the status bar
+	public static int notificationId; // used to update notification text in the status bar
 	protected ListFragment mFrag;
 
 	private ImageButton buttonPrev, buttonStop, buttonPlay, buttonNext;
@@ -130,9 +130,13 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	
 	@Override
 	protected void onDestroy(){
-		if(notificationId != -1)
+		try
 		{
 			mNotificationManager.cancel(notificationId);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
 		}
 		super.onDestroy();
 	}
