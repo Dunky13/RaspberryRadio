@@ -11,6 +11,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -26,6 +27,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.mwent.RaspberryRadio.client.AndroidClient;
 import com.mwent.raspberryradio.ClientService;
 import com.mwent.raspberryradio.R;
@@ -237,7 +239,7 @@ public class ServerList extends ListFragment implements OnClickListener
 			showLoginErrorAlert(e.getMessage());
 			return;
 		}
-
+		
 		// show the settings menu button when connected to the server
 		if(ClientService.mainActivity.menu != null)
 		{

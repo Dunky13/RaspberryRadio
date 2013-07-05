@@ -33,6 +33,7 @@ public class UpdaterService extends Service
 		{
 			previousSong = songInfo;
 			ClientService.mainActivity.updateInfo(songInfo);
+			ClientService.mainActivity.setNotification("RaspberryRadio", songInfo);
 		}
 	}
 
