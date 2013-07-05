@@ -127,6 +127,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 			return true;
 		case R.id.action_settings:
 			intent = new Intent(this, ServerSettingsActivity.class);
+			intent.putExtra("type", "main");
 			intent.putExtra("delete", false);
 			this.startActivity(intent);
 			return true;

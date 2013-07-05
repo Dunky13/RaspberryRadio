@@ -3,6 +3,7 @@ package com.mwent.raspberryradio.server;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
 import com.mwent.raspberryradio.ClientService;
 import com.mwent.raspberryradio.R;
 
@@ -49,9 +51,20 @@ public class ServerSettingsActivity extends Activity implements OnClickListener
 			delete.setVisibility(View.GONE);
 		}
 
-		if (ClientService.serverSettings != null)
+		if (ClientService.connectedServer != null 
+				|| ClientService.serverSettings != null)
 		{
-			fillSettings();
+			Intent intent = getIntent();
+			Bundle extras = intent.getExtras();
+			String type = extras.getString("type");
+			if(type.equals("main"))
+			{
+				fillSettings(ClientService.connectedServer);
+			}
+			else
+			{
+				fillSettings(ClientService.serverSettings);
+			}
 		}
 	}
 	
@@ -112,7 +125,7 @@ public class ServerSettingsActivity extends Activity implements OnClickListener
 			ClientService.serverList.replace(setting);
 	}
 
-	private void fillSettings()
+	private void fillSettings(ServerSettings settings)
 	{
 		TextView id = (TextView)findViewById(R.id.settings_server_id);
 		EditText serverName = (EditText)findViewById(R.id.settings_servername);
@@ -121,14 +134,14 @@ public class ServerSettingsActivity extends Activity implements OnClickListener
 		EditText serverIp = (EditText)findViewById(R.id.settings_server_ip);
 		EditText serverPort = (EditText)findViewById(R.id.settings_server_port);
 
-		if (ClientService.serverSettings != ServerSettings.NEW_SERVER)
+		if (settings != ServerSettings.NEW_SERVER)
 		{
-			id.setText(ClientService.serverSettings.getId() + "");
-			serverName.setText(ClientService.serverSettings.getName());
-			username.setText(ClientService.serverSettings.getUsername());
-			password.setText(ClientService.serverSettings.getPassword());
-			serverIp.setText(ClientService.serverSettings.getIp());
-			serverPort.setText(ClientService.serverSettings.getPort() + "");
+			id.setText(settings.getId() + "");
+			serverName.setText(settings.getName());
+			username.setText(settings.getUsername());
+			password.setText(settings.getPassword());
+			serverIp.setText(settings.getIp());
+			serverPort.setText(settings.getPort() + "");
 		}
 		else
 		{

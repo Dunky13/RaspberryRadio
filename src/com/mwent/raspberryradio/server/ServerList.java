@@ -68,6 +68,7 @@ public class ServerList extends ListFragment implements OnClickListener
 		if (ClientService.clientAPI != null)
 		{
 			ClientService.serverSettings = null;
+			ClientService.connectedServer = null;
 			ClientService.clientAPI.disconnect();
 			ClientService.clientAPI = null;
 		}
@@ -227,6 +228,7 @@ public class ServerList extends ListFragment implements OnClickListener
 		try
 		{
 			ClientService.clientAPI.connect(settings.getUsername(), settings.getPassword());
+			
 		}
 		catch (Exception e)
 		{
@@ -234,10 +236,11 @@ public class ServerList extends ListFragment implements OnClickListener
 			return;
 		}
 
+		// Start the updater
 		ClientService.mainActivity.startService(new Intent(ClientService.mainActivity, UpdaterService.class)); // Start updater service
-
 		ClientService.clientAPI.enableAlbumCovers();
 		ClientService.stationList.firstLoadStationList();
+		ClientService.connectedServer = settings;
 
 		if (ClientService.mainActivity != null)
 		{
@@ -285,6 +288,7 @@ public class ServerList extends ListFragment implements OnClickListener
 				{
 					ClientService.serverSettings = (ServerSettings)v.getTag();
 					Intent intent = new Intent(getActivity(), ServerSettingsActivity.class);
+					intent.putExtra("type", "settings");
 					intent.putExtra("delete", true);
 					startActivity(intent);
 					return false;

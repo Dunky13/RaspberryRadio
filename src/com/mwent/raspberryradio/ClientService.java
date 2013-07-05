@@ -17,9 +17,11 @@ public class ClientService extends Service
 
 	public static ServerList serverList;
 	public static ServerSettings serverSettings;
+	public static ServerSettings connectedServer;
 
 	public static StationList stationList;
 	public static StationSettings stationSettings;
+	
 
 	@Override
 	public void onCreate()
