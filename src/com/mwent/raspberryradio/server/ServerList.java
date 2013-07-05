@@ -77,6 +77,7 @@ public class ServerList extends ListFragment implements OnClickListener
 		{
 			ClientService.serverSettings = ServerSettings.NEW_SERVER;
 			Intent intent = new Intent(getActivity(), ServerSettingsActivity.class);
+			intent.putExtra("type", "settings");
 			intent.putExtra("delete", true);
 			startActivity(intent);
 		}
