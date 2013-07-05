@@ -22,8 +22,8 @@
 	<string name="save">Save</string>
 	<string name="delete">Delete</string>
 	<string name="disconnect">Disconnect</string>
-	<string name="no_song_playing">No Song is currently playing</string>
-	<string name="no_song_name">This song\'s title is not findable</string>
+	<string name="no_song_playing">No song is currently playing</string>
+	<string name="no_song_name">Information about this song can not be found</string>
 	<string name="station_name">Station Name</string>
 	<string name="station_ip">Station IP</string>
 </resources>

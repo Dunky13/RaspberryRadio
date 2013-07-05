@@ -50,7 +50,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 {
 	public static final String TAG = "MainActivity"; // logging tag
 	
-	public static int notificationId; // used to update notification text in the status bar
+	public static int notificationId = -1; // used to update notification text in the status bar
 	protected ListFragment mFrag;
 
 	private ImageButton buttonPrev, buttonStop, buttonPlay, buttonNext;
@@ -59,6 +59,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	private TextView songInfo;
 
 	private AudioManager am;
+	public NotificationManager mNotificationManager;
 	public Menu menu;
 
 	@Override
@@ -126,6 +127,15 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		UpdaterService.emptySongInfo();
 		super.onStop();
 	}
+	
+	@Override
+	protected void onDestroy(){
+		if(notificationId != -1)
+		{
+			mNotificationManager.cancel(notificationId);
+		}
+		super.onDestroy();
+	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
@@ -175,6 +185,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 			UpdaterService.prev();
 			break;
 		case R.id.stop:
+			mNotificationManager.cancel(notificationId);
 			UpdaterService.stop();
 			break;
 		case R.id.play:
@@ -525,10 +536,11 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		NotificationCompat.Builder mBuilder =
 		        new NotificationCompat.Builder(this)
 		        .setSmallIcon(R.drawable.ic_launcher)
+		        .setOngoing(true)
+		        .setAutoCancel(false)
 		        .setContentTitle(title)
 		        .setContentText(message);
 		
-//		Intent resultIntent = new Intent("com.mwent.raspberryradio.MainActivity");
 		Intent resultIntent = new Intent(this, MainActivity.class);
 		
 		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
@@ -541,7 +553,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		            PendingIntent.FLAG_UPDATE_CURRENT
 		        );
 		mBuilder.setContentIntent(resultPendingIntent);
-		NotificationManager mNotificationManager =
+		mNotificationManager =
 		    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		mNotificationManager.notify(notificationId, mBuilder.build());
 	}
