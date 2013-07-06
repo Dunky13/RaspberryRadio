@@ -3,12 +3,10 @@ package com.mwent.raspberryradio;
 import java.io.InputStream;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
-
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
@@ -37,19 +35,17 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 import com.mwent.raspberryradio.server.ServerList;
 import com.mwent.raspberryradio.server.ServerSettingsActivity;
 import com.mwent.raspberryradio.station.StationList;
-
 import de.umass.lastfm.Caller;
 
 public class MainActivity extends SlidingFragmentActivity implements OnClickListener, OnLongClickListener
 {
 	public static final String TAG = "MainActivity"; // logging tag
-	
+
 	public static int notificationId; // used to update notification text in the status bar
 	protected ListFragment mFrag;
 
@@ -94,7 +90,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	protected void onStart()
 	{
 		super.onStart();
-		if (ClientService.clientAPI != null) 
+		if (ClientService.clientAPI != null)
 		{
 			UpdaterService.update(ClientService.clientAPI.getUpdate());
 		}
@@ -103,15 +99,15 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	@Override
 	protected void onResume()
 	{
-//		// hide the settings menu button when not connected to the server
-//		if(ClientService.clientAPI == null && this.menu != null)
-//		{
-//			MenuItem item = this.menu.findItem(R.id.action_settings);
-//			item.setVisible(false);
-//		}
+		//		// hide the settings menu button when not connected to the server
+		//		if(ClientService.clientAPI == null && this.menu != null)
+		//		{
+		//			MenuItem item = this.menu.findItem(R.id.action_settings);
+		//			item.setVisible(false);
+		//		}
 		super.onResume();
 	}
-	
+
 	@Override
 	protected void onPause()
 	{
@@ -127,14 +123,15 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		UpdaterService.emptySongInfo();
 		super.onStop();
 	}
-	
+
 	@Override
-	protected void onDestroy(){
+	protected void onDestroy()
+	{
 		try
 		{
 			mNotificationManager.cancel(notificationId);
 		}
-		catch(Exception e)
+		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
@@ -227,6 +224,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		else if (keyCode == KeyEvent.KEYCODE_MENU)
 		{
 			Intent intent = new Intent(this, ServerSettingsActivity.class);
+			intent.putExtra("type", "main");
 			intent.putExtra("delete", false);
 			this.startActivity(intent);
 			return true;
@@ -536,29 +534,20 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-	public void setNotification(String title, String message) {
-		NotificationCompat.Builder mBuilder =
-		        new NotificationCompat.Builder(this)
-		        .setSmallIcon(R.drawable.ic_launcher)
-		        .setOngoing(true)
-		        .setAutoCancel(false)
-		        .setContentTitle(title)
-		        .setContentText(message);
-		
+	public void setNotification(String title, String message)
+	{
+		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this).setSmallIcon(R.drawable.ic_launcher)
+			.setOngoing(true).setAutoCancel(false).setContentTitle(title).setContentText(message);
+
 		Intent resultIntent = new Intent(this, MainActivity.class);
-		
+
 		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
 		stackBuilder.addParentStack(MainActivity.class);
 		stackBuilder.addNextIntent(resultIntent);
-		
-		PendingIntent resultPendingIntent =
-		        stackBuilder.getPendingIntent(
-		            0,
-		            PendingIntent.FLAG_UPDATE_CURRENT
-		        );
+
+		PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 		mBuilder.setContentIntent(resultPendingIntent);
-		mNotificationManager =
-		    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 		mNotificationManager.notify(notificationId, mBuilder.build());
 	}
 }

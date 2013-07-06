@@ -12,7 +12,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
 import com.mwent.raspberryradio.ClientService;
 import com.mwent.raspberryradio.R;
 
@@ -53,13 +52,12 @@ public class ServerSettingsActivity extends Activity implements OnClickListener
 			delete.setVisibility(View.GONE);
 		}
 
-		if (ClientService.connectedServer != null 
-				|| ClientService.serverSettings != null)
+		if (ClientService.connectedServer != null || ClientService.serverSettings != null)
 		{
 			Intent intent = getIntent();
 			Bundle extras = intent.getExtras();
-			String type = extras.getString("type");
-			if(type.equals("main"))
+			String type = getIntent().getStringExtra("type");
+			if (type.equals("main"))
 			{
 				fillSettings(ClientService.connectedServer);
 			}
@@ -69,21 +67,21 @@ public class ServerSettingsActivity extends Activity implements OnClickListener
 			}
 		}
 	}
-	
+
 	@Override
-	protected void onPause() 
+	protected void onPause()
 	{
 		super.onPause();
 	}
 
 	@Override
-	protected void onResume() 
+	protected void onResume()
 	{
 		super.onResume();
 	}
 
 	@Override
-	protected void onStop() 
+	protected void onStop()
 	{
 		finish();
 		super.onStop();
@@ -219,7 +217,7 @@ public class ServerSettingsActivity extends Activity implements OnClickListener
 				}
 
 				// hide server settings button in the main screen on disconnect
-				if(ClientService.mainActivity.menu != null)
+				if (ClientService.mainActivity.menu != null)
 				{
 					MenuItem item = ClientService.mainActivity.menu.findItem(R.id.action_settings);
 					item.setVisible(false);
