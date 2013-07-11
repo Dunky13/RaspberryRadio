@@ -3,7 +3,6 @@ package com.mwent.raspberryradio.server;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -54,8 +53,6 @@ public class ServerSettingsActivity extends Activity implements OnClickListener
 
 		if (ClientService.connectedServer != null || ClientService.serverSettings != null)
 		{
-			Intent intent = getIntent();
-			Bundle extras = intent.getExtras();
 			String type = getIntent().getStringExtra("type");
 			if (type.equals("main"))
 			{
@@ -208,7 +205,7 @@ public class ServerSettingsActivity extends Activity implements OnClickListener
 			@Override
 			public void onClick(DialogInterface dialog, int which)
 			{
-				if (ClientService.clientAPI.is_connected())
+				if (ClientService.clientAPI.isConnected())
 				{
 					ClientService.clientAPI.disconnect();
 					ClientService.mainActivity.setSongText(getResources().getString(R.string.no_song_playing));

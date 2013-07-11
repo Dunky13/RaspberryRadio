@@ -1,5 +1,6 @@
 package com.mwent.raspberryradio.server;
 
+import info.mwent.RaspberryRadio.AndroidAPI;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
@@ -11,14 +12,12 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
@@ -27,8 +26,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.mwent.RaspberryRadio.client.AndroidClient;
 import com.mwent.raspberryradio.ClientService;
 import com.mwent.raspberryradio.R;
 import com.mwent.raspberryradio.UpdaterService;
@@ -37,11 +34,12 @@ import com.mwent.raspberryradio.server.ServerSettings.ServerSettingsException;
 public class ServerList extends ListFragment implements OnClickListener
 {
 	private static final String _serverFileName = "servers";
+	private static final int _timeOut = 10 * 1000; //10 seconds
 	public static final char DELIM = ';';
 	private List<ServerSettings> servers;
 	private List<Integer> lastServerId;
 	private ServerSettingsAdapter adapter;
-	public AndroidClient clientAPI;
+	//	public AndroidClient clientAPI;
 
 	ImageView albumImage;
 	TextView songInfo;
@@ -87,7 +85,6 @@ public class ServerList extends ListFragment implements OnClickListener
 		else
 		{
 			processServerClick(settings);
-
 		}
 	}
 
@@ -225,39 +222,46 @@ public class ServerList extends ListFragment implements OnClickListener
 		}
 	}
 
-	private void processServerClick(ServerSettings settings)
+	private void processServerClick(final ServerSettings settings)
 	{
 		ClientService.serverSettings = settings;
-		ClientService.clientAPI = new AndroidClient(settings.getIp(), settings.getPort());
-		try
+		ClientService.clientAPI = new AndroidAPI(settings.getIp(), settings.getPort());
+		new Thread(new Runnable()
 		{
-			ClientService.clientAPI.connect(settings.getUsername(), settings.getPassword());
-			
-		}
-		catch (Exception e)
-		{
-			showLoginErrorAlert(e.getMessage());
-			return;
-		}
-		
-		// show the settings menu button when connected to the server
-		if(ClientService.mainActivity.menu != null)
-		{
-			MenuItem item = ClientService.mainActivity.menu.findItem(R.id.action_settings);
-			item.setVisible(true);
-		}
-		
-		// Start the updater
-		ClientService.mainActivity.startService(new Intent(ClientService.mainActivity, UpdaterService.class)); // Start updater service
-		ClientService.clientAPI.enableAlbumCovers();
-		ClientService.stationList.firstLoadStationList();
+
+			@Override
+			public void run()
+			{
+				try
+				{
+					ClientService.clientAPI.connect(settings.getUsername(), settings.getPassword(), _timeOut);
+
+				}
+				catch (Exception e)
+				{
+					showLoginErrorAlert(e.getMessage());
+					return;
+				}
+				ClientService.clientAPI.enableAlbumCovers();
+				// TODO: Check if this code that was commented really makes it slower
+				ClientService.stationList.firstLoadStationList();
+				if (ClientService.mainActivity != null)
+				{
+					ClientService.mainActivity.setUpdaterTimer();
+					ClientService.mainActivity.startService(new Intent(ClientService.mainActivity, UpdaterService.class)); // Start updater service
+					// show the settings menu button when connected to the server
+				}
+				// Start the updater
+			}
+		}).start();
+
 		ClientService.connectedServer = settings;
 
 		if (ClientService.mainActivity != null)
 		{
-			ClientService.mainActivity.setUpdaterTimer();
+			ClientService.mainActivity.menu.findItem(R.id.action_settings).setVisible(true);
 			ClientService.mainActivity.toggle();
-			UpdaterService.update(ClientService.clientAPI.getUpdate());
+			//			UpdaterService.update(ClientService.clientAPI.getUpdate());
 		}
 	}
 

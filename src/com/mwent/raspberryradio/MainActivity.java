@@ -16,7 +16,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.AudioManager;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -40,7 +39,6 @@ import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 import com.mwent.raspberryradio.server.ServerList;
 import com.mwent.raspberryradio.server.ServerSettingsActivity;
 import com.mwent.raspberryradio.station.StationList;
-import de.umass.lastfm.Caller;
 
 public class MainActivity extends SlidingFragmentActivity implements OnClickListener, OnLongClickListener
 {
@@ -54,13 +52,18 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	private ProgressBar bar;
 	private TextView songInfo;
 
-	private AudioManager am;
 	public NotificationManager mNotificationManager;
 	public Menu menu;
+
+	private int maxVol = 1;
+	private int curVol = 1;
+
+	private Bitmap bitmap;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
+
 		super.onCreate(savedInstanceState);
 
 		getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -84,6 +87,8 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		loadSliderStuff(transaction);
 
 		transaction.commit();
+
+		//		setTheme(android.R.style.Theme_Holo);
 	}
 
 	@Override
@@ -92,7 +97,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		super.onStart();
 		if (ClientService.clientAPI != null)
 		{
-			UpdaterService.update(ClientService.clientAPI.getUpdate());
+			UpdaterService.update(ClientService.clientAPI.getCurrent());
 		}
 	}
 
@@ -201,25 +206,38 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	@Override
 	public boolean onLongClick(View v)
 	{
-		if (ClientService.clientAPI != null)
-			UpdaterService.update(ClientService.clientAPI.getUpdate());
+		switch (v.getId())
+		{
+		case R.id.album_image:
+			if (ClientService.clientAPI != null)
+				UpdaterService.update(ClientService.clientAPI.getCurrent());
+			break;
+		case android.R.id.home:
+			Log.d("long click", "home");
+			break;
+		}
 		return false;
 	}
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event)
 	{
-		int maxV = am.getStreamMaxVolume(AudioManager.STREAM_RING);
-		int curV = am.getStreamVolume(AudioManager.STREAM_RING);
+
 		if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
 		{
-			curV -= 1;
-			setVolume(curV * 100d / maxV);
+			curVol--;
+			if (curVol < 0)
+				curVol = 0;
+			setVolume(curVol * 100d / maxVol);
+			return true;
 		}
 		else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP)
 		{
-			curV += 1;
-			setVolume(curV * 100d / maxV);
+			curVol++;
+			if (curVol > maxVol)
+				curVol = maxVol;
+			setVolume(curVol * 100d / maxVol);
+			return true;
 		}
 		else if (keyCode == KeyEvent.KEYCODE_MENU)
 		{
@@ -270,6 +288,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 
 	public void setDefaultAlbumImage()
 	{
+		bitmap = null;
 		showProgressBar(true);
 		runOnUiThread(new Runnable()
 		{
@@ -315,23 +334,26 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 				public void run()
 				{
 					if (setSongText(songInfo))
-						showAlbumImage();
+					{
+						showAlbumImage(songInfo);
+					}
 					else
 					{
 						setSongText(getResources().getString(R.string.no_song_name));
 						setDefaultAlbumImage();
+						setNotification("RaspberryRadio", songInfo, ClientService.serverSettings.getName());
 					}
 				}
 			}).start();
 		}
 	}
 
-	public void showAlbumImage()
+	public void showAlbumImage(String songInfo)
 	{
-		Caller.getInstance().setCache(null);
+		//		Caller.getInstance().setCache(null);
 
 		String coverString = null;
-		if (ClientService.clientAPI.getAlbumCoverEnabled())
+		if (ClientService.clientAPI.isAlbumCoversEnabled())
 		{
 			coverString = ClientService.clientAPI.getAlbumCover();
 		}
@@ -340,7 +362,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 			setDefaultAlbumImage();
 			return;
 		}
-		setImage(coverString);
+		setImage(coverString, songInfo);
 	}
 
 	public void setUpdaterTimer()
@@ -349,7 +371,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		timer.scheduleAtFixedRate(new UpdaterTask(), 0, 1000 * 60);
 	}
 
-	private void setImage(String url)
+	private void setImage(String url, final String songInfo)
 	{
 		AsyncTask<String, Void, Void> task = new AsyncTask<String, Void, Void>()
 		{
@@ -358,7 +380,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 			protected Void doInBackground(String... params)
 			{
 				String url = params[0];
-				final Bitmap bitmap = downloadBitmap(url);
+				bitmap = downloadBitmap(url);
 				if (bitmap != null)
 				{
 					runOnUiThread(new Runnable()
@@ -378,6 +400,11 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 				return null;
 			}
 
+			@Override
+			protected void onPostExecute(Void result)
+			{
+				setNotification("RaspberryRadio", songInfo, ClientService.serverSettings.getName());
+			}
 		};
 		task.execute(url);
 	}
@@ -388,6 +415,8 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 
 		ClientService.mainActivity = this;
 
+		mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+
 		setupAlbumImage();
 		setupPlaybackButtons();
 		setStartVolume();
@@ -395,12 +424,12 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 
 	private void setStartVolume()
 	{
-		am = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+		//		AudioManager am = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+		maxVol = 15;//am.getStreamMaxVolume(AudioManager.STREAM_RING);
+		curVol = 7;//am.getStreamVolume(AudioManager.STREAM_RING);
 		if (ClientService.clientAPI != null)
 		{
-			int maxV = am.getStreamMaxVolume(AudioManager.STREAM_RING);
-			int curV = am.getStreamVolume(AudioManager.STREAM_RING);
-			ClientService.clientAPI.volume(curV * 100 / maxV);
+			ClientService.clientAPI.setVolume(curVol * 100d / maxVol);
 		}
 	}
 
@@ -408,7 +437,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	{
 		if (ClientService.clientAPI != null)
 		{
-			ClientService.clientAPI.volume(percentage);
+			ClientService.clientAPI.setVolume(percentage);
 		}
 		else
 		{
@@ -527,18 +556,20 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 				public void run()
 				{
 					if (ClientService.clientAPI != null)
-						UpdaterService.update(ClientService.clientAPI.getUpdate());
+						UpdaterService.update(ClientService.clientAPI.getCurrent());
 				}
 			});
 		}
 	}
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-	public void setNotification(String title, String message)
+	public void setNotification(String title, String message, String station)
 	{
 		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this).setSmallIcon(R.drawable.ic_launcher)
-			.setOngoing(true).setAutoCancel(false).setContentTitle(title).setContentText(message);
+			.setOngoing(true).setAutoCancel(false).setContentTitle(title).setContentText(station).setSubText(message);
 
+		if (bitmap != null)
+			mBuilder.setLargeIcon(bitmap);
 		Intent resultIntent = new Intent(this, MainActivity.class);
 
 		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
@@ -547,7 +578,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 
 		PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 		mBuilder.setContentIntent(resultPendingIntent);
-		mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+
 		mNotificationManager.notify(notificationId, mBuilder.build());
 	}
 }

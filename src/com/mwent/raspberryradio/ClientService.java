@@ -1,9 +1,9 @@
 package com.mwent.raspberryradio;
 
+import info.mwent.RaspberryRadio.AndroidAPI;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import com.mwent.RaspberryRadio.client.AndroidClient;
 import com.mwent.raspberryradio.server.ServerList;
 import com.mwent.raspberryradio.server.ServerSettings;
 import com.mwent.raspberryradio.station.StationList;
@@ -13,7 +13,7 @@ public class ClientService extends Service
 {
 
 	public static MainActivity mainActivity;
-	public static AndroidClient clientAPI;
+	public static AndroidAPI clientAPI;
 
 	public static ServerList serverList;
 	public static ServerSettings serverSettings;
@@ -21,7 +21,6 @@ public class ClientService extends Service
 
 	public static StationList stationList;
 	public static StationSettings stationSettings;
-	
 
 	@Override
 	public void onCreate()
@@ -32,7 +31,7 @@ public class ClientService extends Service
 	@Override
 	public void onDestroy()
 	{
-		if (clientAPI.is_connected())
+		if (clientAPI.isConnected())
 		{
 			clientAPI.disconnect();
 		}
@@ -41,7 +40,7 @@ public class ClientService extends Service
 	}
 
 	@Override
-	public void onRebind(Intent intent) 
+	public void onRebind(Intent intent)
 	{
 		super.onRebind(intent);
 	}
@@ -53,7 +52,7 @@ public class ClientService extends Service
 	}
 
 	@Override
-	public boolean onUnbind(Intent intent) 
+	public boolean onUnbind(Intent intent)
 	{
 		return super.onUnbind(intent);
 	}

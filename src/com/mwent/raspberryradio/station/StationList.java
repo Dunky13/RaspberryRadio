@@ -1,5 +1,6 @@
 package com.mwent.raspberryradio.station;
 
+import info.mwent.RaspberryRadio.shared.CommandStationList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,7 +17,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.mwent.RaspberryRadio.shared.CommandStationList;
 import com.mwent.raspberryradio.ClientService;
 import com.mwent.raspberryradio.R;
 import com.mwent.raspberryradio.UpdaterService;
@@ -121,8 +121,10 @@ public class StationList extends ListFragment implements OnClickListener, OnLong
 
 	private void loadStationList()
 	{
+
 		adapter.clear();
-		adapter.addAll(_stations);
+		if (_stations != null)
+			adapter.addAll(_stations);
 
 		adapter.add(StationSettings.NEW_STATION);
 	}
@@ -154,7 +156,7 @@ public class StationList extends ListFragment implements OnClickListener, OnLong
 		stationsIds = new ArrayList<Integer>();
 		if (ClientService.clientAPI == null)
 			return;
-		List<CommandStationList> stations = ClientService.clientAPI.listAll();
+		List<CommandStationList> stations = ClientService.clientAPI.getListAll();
 
 		for (CommandStationList station : stations)
 		{
@@ -177,6 +179,7 @@ public class StationList extends ListFragment implements OnClickListener, OnLong
 	private void processStationClick(StationSettings settings)
 	{
 		ClientService.stationSettings = settings;
+		//		settings.
 
 		if (ClientService.mainActivity != null)
 		{

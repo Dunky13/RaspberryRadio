@@ -37,21 +37,21 @@ public class StationSettingsActivity extends Activity implements OnClickListener
 			fillSettings();
 		}
 	}
-	
+
 	@Override
-	protected void onPause() 
+	protected void onPause()
 	{
 		super.onPause();
 	}
 
 	@Override
-	protected void onResume() 
+	protected void onResume()
 	{
 		super.onResume();
 	}
 
 	@Override
-	protected void onStop() 
+	protected void onStop()
 	{
 		finish();
 		super.onStop();
@@ -80,6 +80,7 @@ public class StationSettingsActivity extends Activity implements OnClickListener
 			id.setText("");
 			pos.setText("");
 			serverName.setText("New Server");
+			serverName.setEnabled(true);
 			serverIp.setText("");
 		}
 	}
