@@ -12,8 +12,10 @@
 	<string name="stop">Stop playing</string>
 	<string name="play">Start playing</string>
 	<string name="next">Next Station</string>
-	<string name="settings_title">Server Settings</string>
+	<string name="server_settings_title">Server Settings</string>
+	<string name="station_settings_title">Station Settings</string>
 	<string name="server_name">Server Name</string>
+	<string name="station_name">Station Name</string>
 	<string name="username">Username</string>
 	<string name="password">Password</string>
 	<string name="server_ip">Server IP</string>
@@ -24,6 +26,5 @@
 	<string name="disconnect">Disconnect</string>
 	<string name="no_song_playing">No song is currently playing</string>
 	<string name="no_song_name">Information about this song can not be found</string>
-	<string name="station_name">Station Name</string>
 	<string name="station_ip">Station IP</string>
 </resources>

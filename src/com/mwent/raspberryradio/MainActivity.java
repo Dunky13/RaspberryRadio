@@ -16,6 +16,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -39,6 +40,8 @@ import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 import com.mwent.raspberryradio.server.ServerList;
 import com.mwent.raspberryradio.server.ServerSettingsActivity;
 import com.mwent.raspberryradio.station.StationList;
+import com.mwent.raspberryradio.station.StationSettingsActivity;
+import com.mwent.raspberryradio.station.StationURL;
 
 public class MainActivity extends SlidingFragmentActivity implements OnClickListener, OnLongClickListener
 {
@@ -65,7 +68,6 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	{
 
 		super.onCreate(savedInstanceState);
-
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 
 		setContentView(R.layout.activity_main);
@@ -82,6 +84,13 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		else
 		{
 			mFrag = (ListFragment)this.getSupportFragmentManager().findFragmentById(R.id.left_frame);
+		}
+
+		Uri data = getIntent().getData();
+		if (data != null)
+		{
+			ClientService.stationSettings = StationURL.parse(data);
+			startActivity(new Intent(this, StationSettingsActivity.class));
 		}
 
 		loadSliderStuff(transaction);
@@ -268,6 +277,16 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		}
 		return super.onKeyLongPress(keyCode, event);
 	}
+
+	//	@Override
+	//	public void onActivityResult(int requestCode, int resultCode, Intent intent)
+	//	{
+	//		IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+	//		if (scanResult != null)
+	//		{
+	//			Log.e("QR", scanResult.toString());
+	//		}
+	//	}
 
 	public boolean setSongText(final String s)
 	{

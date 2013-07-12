@@ -226,22 +226,22 @@ public class ServerList extends ListFragment implements OnClickListener
 	{
 		ClientService.serverSettings = settings;
 		ClientService.clientAPI = new AndroidAPI(settings.getIp(), settings.getPort());
+		try
+		{
+			ClientService.clientAPI.connect(settings.getUsername(), settings.getPassword(), _timeOut);
+
+		}
+		catch (Exception e)
+		{
+			showLoginErrorAlert(e.getMessage());
+			return;
+		}
 		new Thread(new Runnable()
 		{
 
 			@Override
 			public void run()
 			{
-				try
-				{
-					ClientService.clientAPI.connect(settings.getUsername(), settings.getPassword(), _timeOut);
-
-				}
-				catch (Exception e)
-				{
-					showLoginErrorAlert(e.getMessage());
-					return;
-				}
 				ClientService.clientAPI.enableAlbumCovers();
 				// TODO: Check if this code that was commented really makes it slower
 				ClientService.stationList.firstLoadStationList();

@@ -20,6 +20,8 @@ import android.widget.TextView;
 import com.mwent.raspberryradio.ClientService;
 import com.mwent.raspberryradio.R;
 import com.mwent.raspberryradio.UpdaterService;
+import com.mwent.raspberryradio.station.qr.IntentIntegrator;
+import com.mwent.raspberryradio.station.qr.IntentResult;
 
 public class StationList extends ListFragment implements OnClickListener, OnLongClickListener
 {
@@ -58,10 +60,29 @@ public class StationList extends ListFragment implements OnClickListener, OnLong
 			ClientService.stationSettings = StationSettings.NEW_STATION;
 			startActivity(new Intent(getActivity(), StationSettingsActivity.class));
 		}
+		else if (settings == StationSettings.NEW_STATION_BY_QR)
+		{
+			IntentIntegrator integrator = new IntentIntegrator(getActivity());
+			Intent i = integrator.getIntent();
+			this.startActivityForResult(i, IntentIntegrator.REQUEST_CODE);
+
+		}
 		else
 		{
 			processStationClick(settings);
 
+		}
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent intent)
+	{
+		IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+
+		if (scanResult != null)
+		{
+			ClientService.stationSettings = StationURL.parse(scanResult.getContents());
+			startActivity(new Intent(getActivity(), StationSettingsActivity.class));
 		}
 	}
 
@@ -74,11 +95,16 @@ public class StationList extends ListFragment implements OnClickListener, OnLong
 		return false;
 	}
 
+	public boolean has(StationSettings setting)
+	{
+		return _stations.contains(setting);
+	}
+
 	public void add(StationSettings setting)
 	{
 		setting.setId(getID());
 		_stations.add(setting);
-		ClientService.clientAPI.add(setting.getIp());
+		ClientService.clientAPI.add(setting.getName(), setting.getIp());
 		firstLoadStationList();
 		//		write();
 	}
@@ -127,6 +153,7 @@ public class StationList extends ListFragment implements OnClickListener, OnLong
 			adapter.addAll(_stations);
 
 		adapter.add(StationSettings.NEW_STATION);
+		adapter.add(StationSettings.NEW_STATION_BY_QR);
 	}
 
 	private int getID()

@@ -11,16 +11,25 @@ import android.widget.EditText;
 import android.widget.TextView;
 import com.mwent.raspberryradio.ClientService;
 import com.mwent.raspberryradio.R;
+import com.mwent.raspberryradio.station.qr.IntentIntegrator;
 
 public class StationSettingsActivity extends Activity implements OnClickListener
 {
 
 	Button cancel, save, delete;
 
+	public StationSettingsActivity()
+	{
+		super();
+		//		onCreate(new Bundle());
+	}
+
 	@Override
 	public void onCreate(Bundle b)
 	{
 		super.onCreate(b);
+		ClientService.stationSettingsActivity = this;
+
 		setContentView(R.layout.activity_station_settings);
 
 		cancel = (Button)findViewById(R.id.settings_station_cancel);
@@ -64,14 +73,7 @@ public class StationSettingsActivity extends Activity implements OnClickListener
 		EditText serverName = (EditText)findViewById(R.id.settings_station_name);
 		EditText serverIp = (EditText)findViewById(R.id.settings_station_ip);
 
-		if (ClientService.stationSettings != StationSettings.NEW_STATION)
-		{
-			id.setText(ClientService.stationSettings.getId() + "");
-			serverName.setText(ClientService.stationSettings.getName());
-			serverIp.setText(ClientService.stationSettings.getIp());
-			pos.setText(ClientService.stationSettings.getPos() + "");
-		}
-		else
+		if (ClientService.stationSettings == StationSettings.NEW_STATION)
 		{
 			delete.setVisibility(View.GONE);
 			save.setVisibility(View.VISIBLE);
@@ -82,6 +84,30 @@ public class StationSettingsActivity extends Activity implements OnClickListener
 			serverName.setText("New Server");
 			serverName.setEnabled(true);
 			serverIp.setText("");
+		}
+		else if (ClientService.stationSettings == StationSettings.NEW_STATION_BY_QR)
+		{
+			IntentIntegrator integrator = new IntentIntegrator(this);
+			integrator.initiateScan();
+		}
+		else if (!ClientService.stationList.has(ClientService.stationSettings))
+		{
+			delete.setVisibility(View.GONE);
+			save.setVisibility(View.VISIBLE);
+			serverIp.requestFocus();
+
+			id.setText(ClientService.stationSettings.getId() + "");
+			serverName.setText(ClientService.stationSettings.getName());
+			serverIp.setText(ClientService.stationSettings.getIp());
+			pos.setText(ClientService.stationSettings.getPos() + "");
+		}
+
+		else
+		{
+			id.setText(ClientService.stationSettings.getId() + "");
+			serverName.setText(ClientService.stationSettings.getName());
+			serverIp.setText(ClientService.stationSettings.getIp());
+			pos.setText(ClientService.stationSettings.getPos() + "");
 		}
 	}
 

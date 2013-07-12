@@ -14,6 +14,15 @@ public class StationSettings
 		R.drawable.ic_action_add,
 		false);
 
+	public static final StationSettings NEW_STATION_BY_QR = new StationSettings(
+		-1,
+		"New Station using QR-code",
+		"",
+		-1,
+		';',
+		R.drawable.ic_action_add,
+		false);
+
 	private int _id;
 
 	private String _host;
@@ -21,22 +30,22 @@ public class StationSettings
 
 	private int _pos;
 
+	public static final char DELIM = StationList.DELIM;
+
 	private final char _DELIM;
 
 	private final int _image;
 
 	private boolean _writable;
 
+	public StationSettings(int id, String name, String ip, int pos)
+	{
+		this(id, name, ip, pos, DELIM);
+	}
+
 	public StationSettings(int id, String name, String ip, int pos, char delim)
 	{
-		_id = id;
-		_name = name;
-		_host = ip;
-		_pos = pos;
-		_DELIM = delim;
-
-		_image = R.drawable.ic_action_record;
-		setWritable(true);
+		this(id, name, ip, pos, delim, R.drawable.ic_action_record, true);
 	}
 
 	public StationSettings(int id, String name, String ip, int pos, char delim, int icon, boolean writable)

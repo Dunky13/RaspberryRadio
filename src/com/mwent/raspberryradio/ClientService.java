@@ -8,6 +8,7 @@ import com.mwent.raspberryradio.server.ServerList;
 import com.mwent.raspberryradio.server.ServerSettings;
 import com.mwent.raspberryradio.station.StationList;
 import com.mwent.raspberryradio.station.StationSettings;
+import com.mwent.raspberryradio.station.StationSettingsActivity;
 
 public class ClientService extends Service
 {
@@ -21,6 +22,7 @@ public class ClientService extends Service
 
 	public static StationList stationList;
 	public static StationSettings stationSettings;
+	public static StationSettingsActivity stationSettingsActivity;
 
 	@Override
 	public void onCreate()

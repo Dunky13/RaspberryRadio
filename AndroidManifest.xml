@@ -25,11 +25,19 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <data android:scheme="station" />
+
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
         </activity>
         <activity
             android:name="com.mwent.raspberryradio.server.ServerSettingsActivity"
             android:excludeFromRecents="true"
-            android:label="@string/settings_title"
+            android:label="@string/server_settings_title"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Holo.Light.Dialog" >
             <intent-filter>
@@ -38,16 +46,14 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        
         <activity
             android:name="com.mwent.raspberryradio.station.StationSettingsActivity"
             android:excludeFromRecents="true"
-            android:label="@string/settings_title"
+            android:label="@string/station_settings_title"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Holo.Light.Dialog" >
             <intent-filter>
                 <action android:name="com.mwent.raspberryradio.SETTINGS" />
-
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
