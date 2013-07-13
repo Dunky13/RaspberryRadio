@@ -21,19 +21,18 @@ public class StationURL
 	{
 		url = url.replace("\"", "");
 		String[] split = url.split("\\/\\?");
-		try
-		{
-			url = split[0] + "/?" + URLEncoder.encode(split[1], "UTF-8");
-		}
-		catch (UnsupportedEncodingException e1)
-		{
-		}
 		URI uri = null;
 		try
 		{
+			url = split[0] + "/?" + URLEncoder.encode(split[1], "UTF-8");
 			uri = new URI(url);
 		}
 		catch (URISyntaxException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+		catch (UnsupportedEncodingException e)
 		{
 			e.printStackTrace();
 			return null;
