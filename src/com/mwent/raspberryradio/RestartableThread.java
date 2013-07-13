@@ -23,7 +23,8 @@ public class RestartableThread
 
 	public void restart()
 	{
-		t.interrupt();
+		if (t.isAlive())
+			t.interrupt();
 		t = new Thread(backup);
 		t.start();
 	}

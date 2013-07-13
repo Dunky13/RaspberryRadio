@@ -64,6 +64,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	private int curVol = 1;
 
 	private Bitmap bitmap;
+	private RestartableThread restartThread;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -311,21 +312,22 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 				}
 			}
 		};
-		final RestartableThread t = new RestartableThread(r);
-		t.start();
+		if(restartThread == null)
+			restartThread = new RestartableThread(r);
+		restartThread.restart();
 		volumeSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener()
 		{
 
 			@Override
 			public void onStopTrackingTouch(SeekBar seekBar)
 			{
-				t.restart();
+				restartThread.restart();
 			}
 
 			@Override
 			public void onStartTrackingTouch(SeekBar seekBar)
 			{
-				t.interrupt();
+				restartThread.interrupt();
 			}
 
 			@Override
