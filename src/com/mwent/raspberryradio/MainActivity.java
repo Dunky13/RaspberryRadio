@@ -64,7 +64,6 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	private int curVol = 1;
 
 	private Bitmap bitmap;
-	private RestartableThread restartThread;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -296,7 +295,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		final AlertDialog dialog = alertDialogBuilder.create();
 		dialog.show();
 
-		final Runnable r = new Runnable()
+		final Runnable restartDialog = new Runnable()
 		{
 
 			@Override
@@ -312,9 +311,8 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 				}
 			}
 		};
-		if(restartThread == null)
-			restartThread = new RestartableThread(r);
-		restartThread.restart();
+		final RestartableThread restartThread = new RestartableThread(restartDialog);
+		restartThread.start();
 		volumeSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener()
 		{
 
