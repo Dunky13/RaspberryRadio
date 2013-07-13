@@ -1,12 +1,7 @@
 package com.mwent.raspberryradio;
 
-import java.io.InputStream;
 import java.util.Timer;
 import java.util.TimerTask;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
@@ -17,7 +12,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -90,7 +84,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		if (data != null)
 		{
 			ClientService.stationSettings = StationURL.parse(data);
-			startActivity(new Intent(this, StationSettingsActivity.class));
+			startActivity(new Intent(ClientService.mainActivity, StationSettingsActivity.class));
 		}
 
 		loadSliderStuff(transaction);
@@ -399,7 +393,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 			protected Void doInBackground(String... params)
 			{
 				String url = params[0];
-				bitmap = downloadBitmap(url);
+				bitmap = ClientService.downloadBitmap(url);
 				if (bitmap != null)
 				{
 					runOnUiThread(new Runnable()
@@ -491,57 +485,6 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		alertDialogBuilder.setTitle("You are not connected");
 		alertDialogBuilder.setMessage("Please connect before using the buttons").setCancelable(false).setPositiveButton("Ok", null);
 		alertDialogBuilder.create().show();
-	}
-
-	private Bitmap downloadBitmap(String url)
-	{
-		final AndroidHttpClient client = AndroidHttpClient.newInstance("Android");
-		final HttpGet getRequest = new HttpGet(url);
-
-		try
-		{
-			HttpResponse response = client.execute(getRequest);
-			final int statusCode = response.getStatusLine().getStatusCode();
-			if (statusCode != HttpStatus.SC_OK)
-			{
-				Log.w("ImageDownloader", "Error " + statusCode + " while retrieving bitmap from " + url);
-				return null;
-			}
-
-			final HttpEntity entity = response.getEntity();
-			if (entity != null)
-			{
-				InputStream inputStream = null;
-				try
-				{
-					inputStream = entity.getContent();
-					final Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-					return bitmap;
-				}
-				finally
-				{
-					if (inputStream != null)
-					{
-						inputStream.close();
-					}
-					entity.consumeContent();
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			getRequest.abort();
-			Log.w("ImageDownloader", "Error while retrieving bitmap from " + url + " - " + e.getMessage());
-
-		}
-		finally
-		{
-			if (client != null)
-			{
-				client.close();
-			}
-		}
-		return null;
 	}
 
 	private void loadSliderStuff(FragmentTransaction transaction)

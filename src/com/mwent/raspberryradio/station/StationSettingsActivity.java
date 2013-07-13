@@ -1,8 +1,13 @@
 package com.mwent.raspberryradio.station;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.concurrent.ExecutionException;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -178,5 +183,44 @@ public class StationSettingsActivity extends Activity implements OnClickListener
 			}
 		}).setNegativeButton("Cancel", null);
 		alertDialogBuilder.create().show();
+	}
+
+	private void getQR(String name, String station)
+	{
+		AsyncTask<String, Void, Bitmap> task = new AsyncTask<String, Void, Bitmap>()
+		{
+
+			@Override
+			protected Bitmap doInBackground(String... params)
+			{
+				String url = params[0];
+				Bitmap bitmap = ClientService.downloadBitmap(url);
+				return bitmap;
+			}
+		};
+		String url = "station://radio.mwent.info/?name=\"" + name + "\"&station=\"" + station + "\"";
+		try
+		{
+			url = URLEncoder.encode(url, "UTF-8");
+		}
+		catch (UnsupportedEncodingException e)
+		{
+		}
+		int width = 300;
+		int height = 300;
+		String qr = "http://chart.apis.google.com/chart?cht=qr&chs=" + width + "x" + height + "&chld=Q|0&choe=UTF-8&chl=" + url;
+		try
+		{
+			Bitmap b = task.execute(qr).get();
+		}
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+		catch (ExecutionException e)
+		{
+			e.printStackTrace();
+		}
+
 	}
 }

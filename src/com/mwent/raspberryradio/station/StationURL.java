@@ -1,7 +1,9 @@
 package com.mwent.raspberryradio.station;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import android.net.Uri;
@@ -17,7 +19,15 @@ public class StationURL
 
 	public static StationSettings parse(String url)
 	{
-		url = url.replace('"', '\'');
+		url = url.replace("\"", "");
+		String[] split = url.split("\\/\\?");
+		try
+		{
+			url = split[0] + "/?" + URLEncoder.encode(split[1], "UTF-8");
+		}
+		catch (UnsupportedEncodingException e1)
+		{
+		}
 		URI uri = null;
 		try
 		{
@@ -25,6 +35,7 @@ public class StationURL
 		}
 		catch (URISyntaxException e)
 		{
+			e.printStackTrace();
 			return null;
 		}
 

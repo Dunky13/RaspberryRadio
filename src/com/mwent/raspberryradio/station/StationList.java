@@ -81,8 +81,12 @@ public class StationList extends ListFragment implements OnClickListener, OnLong
 
 		if (scanResult != null)
 		{
-			ClientService.stationSettings = StationURL.parse(scanResult.getContents());
-			startActivity(new Intent(getActivity(), StationSettingsActivity.class));
+			StationSettings setting = StationURL.parse(scanResult.getContents());
+			if (setting != null)
+			{
+				ClientService.stationSettings = setting;
+				startActivity(new Intent(getActivity(), StationSettingsActivity.class));
+			}
 		}
 	}
 
