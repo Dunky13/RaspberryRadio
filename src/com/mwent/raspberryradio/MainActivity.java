@@ -2,17 +2,14 @@ package com.mwent.raspberryradio;
 
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnKeyListener;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -38,7 +35,6 @@ import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
-
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 import com.mwent.raspberryradio.server.ServerList;
@@ -51,8 +47,6 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 {
 	public static final String TAG = "MainActivity"; // logging tag
 	public static final int MAX_VOLUME = 15; //max volume
-	private static final ScheduledExecutorService executor = 
-			  Executors.newSingleThreadScheduledExecutor();
 
 	public static int notificationId; // used to update notification text in the status bar
 	protected ListFragment mFrag;
@@ -61,6 +55,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	private ImageView albumImage;
 	private ProgressBar bar;
 	private TextView songInfo;
+	private SeekBar volumeSeekBar;
 
 	public AlertDialog.Builder alertDialogBuilder;
 	public NotificationManager mNotificationManager;
@@ -76,7 +71,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 
 		super.onCreate(savedInstanceState);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
-		
+
 		setContentView(R.layout.activity_main);
 		setBehindContentView(R.layout.left_frame); // left and right menu
 		loadVariables();
@@ -283,47 +278,65 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		return super.onKeyDown(keyCode, event);
 	}
 
-	private void showVolumeToaster(int curVol) {
+	private void showVolumeToaster(int curVol)
+	{
 		LayoutInflater inflater = getLayoutInflater();
-		View volumeToastLayout = inflater.inflate(R.layout.volume_toast,
-				(ViewGroup) findViewById(R.id.toast_layout));
+		View volumeToastLayout = inflater.inflate(R.layout.volume_toast, (ViewGroup)findViewById(R.id.toast_layout));
 
-		SeekBar volumeSeekBar = (SeekBar) volumeToastLayout.findViewById(R.id.volumeSeekBar);
+		volumeSeekBar = (SeekBar)volumeToastLayout.findViewById(R.id.volumeSeekBar);
 		volumeSeekBar.setProgress(curVol);
 		volumeSeekBar.setMax(MAX_VOLUME);
-		volumeSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+		//		volumeSeekBar.onKey
+		alertDialogBuilder = new AlertDialog.Builder(this);
+		alertDialogBuilder.setView(volumeToastLayout);
+		alertDialogBuilder.setCancelable(true);
+
+		alertDialogBuilder.setOnKeyListener(getKeyListener());
+		final AlertDialog dialog = alertDialogBuilder.create();
+		dialog.show();
+
+		final Runnable r = new Runnable()
+		{
 
 			@Override
-			public void onStopTrackingTouch(SeekBar seekBar) {
-				// TODO Auto-generated method stub
+			public void run()
+			{
+				try
+				{
+					Thread.sleep(3000);
+					dialog.dismiss();
+				}
+				catch (InterruptedException e)
+				{
+				}
+			}
+		};
+		final RestartableThread t = new RestartableThread(r);
+		t.start();
+		volumeSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener()
+		{
+
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar)
+			{
+				t.restart();
 			}
 
 			@Override
-			public void onStartTrackingTouch(SeekBar seekBar) {
-				// TODO Auto-generated method stub
+			public void onStartTrackingTouch(SeekBar seekBar)
+			{
+				t.interrupt();
 			}
 
 			@Override
-			public void onProgressChanged(SeekBar seekBar, int progress,
-					boolean fromUser) {
-				if(fromUser){
+			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
+			{
+				if (fromUser)
+				{
 					setVolume(progress * 100d / MAX_VOLUME);
 				}
 			}
 		});
-
-		alertDialogBuilder = new AlertDialog.Builder(this);
-		alertDialogBuilder.setView(volumeToastLayout);
-		alertDialogBuilder.setCancelable(true);
-		alertDialogBuilder.create().show();
-		
-//		Runnable hideDialog= new Runnable() {
-//		    public void run() {
-//		    	alertDialogBuilder.hide();
-//		    }
-//		};
-//		
-//		executor.schedule(hideDialog, 5, TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -459,7 +472,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	private void setImage(String url, final String songInfo)
 	{
 		AsyncTask<String, Void, Void> task = new AsyncTask<String, Void, Void>()
-				{
+		{
 
 			@Override
 			protected Void doInBackground(String... params)
@@ -490,8 +503,8 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 			{
 				setNotification("RaspberryRadio", songInfo, ClientService.serverSettings.getName());
 			}
-				};
-				task.execute(url);
+		};
+		task.execute(url);
 	}
 
 	private void loadVariables()
@@ -571,6 +584,58 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		transaction.replace(R.id.right_frame, new StationList()); //RIGHT
 	}
 
+	private OnKeyListener getKeyListener()
+	{
+		return new OnKeyListener()
+		{
+
+			@Override
+			public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event)
+			{
+				if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
+				{
+					if (ClientService.clientAPI != null)
+					{
+						curVol--;
+						if (curVol < 0)
+							curVol = 0;
+						setVolume(curVol * 100d / MAX_VOLUME);
+						if (volumeSeekBar != null)
+							volumeSeekBar.setProgress(curVol);
+						//						dialog.dismiss();
+						//						showVolumeToaster(curVol);
+					}
+					else
+					{
+						showNoConnectionAlert();
+					}
+					return true;
+				}
+				else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP)
+				{
+					if (ClientService.clientAPI != null)
+					{
+						curVol++;
+						if (curVol > MAX_VOLUME)
+							curVol = MAX_VOLUME;
+						setVolume(curVol * 100d / MAX_VOLUME);
+						if (volumeSeekBar != null)
+							volumeSeekBar.setProgress(curVol);
+						//						dialog.dismiss();
+						//						showVolumeToaster(curVol);
+					}
+					else
+					{
+						showNoConnectionAlert();
+					}
+					return true;
+				}
+				return false;
+			}
+		};
+
+	}
+
 	protected class UpdaterTask extends TimerTask
 	{
 		@Override
@@ -593,7 +658,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	public void setNotification(String title, String message, String station)
 	{
 		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this).setSmallIcon(R.drawable.ic_launcher)
-				.setOngoing(true).setAutoCancel(false).setContentTitle(title).setContentText(station).setSubText(message);
+			.setOngoing(true).setAutoCancel(false).setContentTitle(title).setContentText(station).setSubText(message);
 
 		if (bitmap != null)
 			mBuilder.setLargeIcon(bitmap);
