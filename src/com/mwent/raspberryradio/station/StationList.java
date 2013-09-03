@@ -215,7 +215,9 @@ public class StationList extends ListFragment implements OnClickListener, OnLong
 		if (ClientService.mainActivity != null)
 		{
 			ClientService.mainActivity.toggle();
-			UpdaterService.update(ClientService.clientAPI.setStation(settings.getPos()));
+			String station = ClientService.clientAPI.setStation(settings.getPos());
+			if (station != null)
+				UpdaterService.update(station);
 		}
 	}
 

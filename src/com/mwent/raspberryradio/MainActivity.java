@@ -64,6 +64,8 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	private int curVol = 1;
 
 	private Bitmap bitmap;
+	private SlidingMenu _sm;
+	private int _noConnectionAlertCounter;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -76,7 +78,14 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		setBehindContentView(R.layout.left_frame); // left and right menu
 		loadVariables();
 
-		FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
+		slidingStuff(savedInstanceState);
+
+		//		setTheme(android.R.style.Theme_Holo);
+	}
+
+	private void slidingStuff(Bundle savedInstanceState)
+	{
+		FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
 		if (savedInstanceState == null)
 		{
@@ -85,7 +94,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		}
 		else
 		{
-			mFrag = (ListFragment)this.getSupportFragmentManager().findFragmentById(R.id.left_frame);
+			mFrag = (ListFragment)getSupportFragmentManager().findFragmentById(R.id.left_frame);
 		}
 
 		Uri data = getIntent().getData();
@@ -98,8 +107,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		loadSliderStuff(transaction);
 
 		transaction.commit();
-
-		//		setTheme(android.R.style.Theme_Holo);
+		hideRightSide(true);
 	}
 
 	@Override
@@ -113,29 +121,8 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	}
 
 	@Override
-	protected void onResume()
-	{
-		//		// hide the settings menu button when not connected to the server
-		//		if(ClientService.clientAPI == null && this.menu != null)
-		//		{
-		//			MenuItem item = this.menu.findItem(R.id.action_settings);
-		//			item.setVisible(false);
-		//		}
-		super.onResume();
-	}
-
-	@Override
-	protected void onPause()
-	{
-		super.onPause();
-	}
-
-	@Override
 	protected void onStop()
 	{
-		// 		finish();
-		//		super.stopService(new Intent(this, ClientService.class)); // Stop ClientAPI service
-		//		super.stopService(new Intent(this, UpdaterService.class)); // Stop updater service
 		UpdaterService.emptySongInfo();
 		super.onStop();
 	}
@@ -204,6 +191,8 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		case R.id.stop:
 			mNotificationManager.cancel(notificationId);
 			UpdaterService.stop();
+			setDefaultAlbumImage();
+			setSongText(getResources().getString(R.string.no_song_playing));
 			break;
 		case R.id.play:
 			UpdaterService.play();
@@ -221,7 +210,9 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		{
 		case R.id.album_image:
 			if (ClientService.clientAPI != null)
+			{
 				UpdaterService.update(ClientService.clientAPI.getCurrent());
+			}
 			break;
 		case android.R.id.home:
 			Log.d("long click", "home");
@@ -240,7 +231,9 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 			{
 				curVol--;
 				if (curVol < 0)
+				{
 					curVol = 0;
+				}
 				setVolume(curVol * 100d / MAX_VOLUME);
 				showVolumeToaster(curVol);
 			}
@@ -256,7 +249,9 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 			{
 				curVol++;
 				if (curVol > MAX_VOLUME)
+				{
 					curVol = MAX_VOLUME;
+				}
 				setVolume(curVol * 100d / MAX_VOLUME);
 				showVolumeToaster(curVol);
 			}
@@ -357,16 +352,6 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		return super.onKeyLongPress(keyCode, event);
 	}
 
-	//	@Override
-	//	public void onActivityResult(int requestCode, int resultCode, Intent intent)
-	//	{
-	//		IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-	//		if (scanResult != null)
-	//		{
-	//			Log.e("QR", scanResult.toString());
-	//		}
-	//	}
-
 	public boolean setSongText(final String s)
 	{
 		if (s != null && !s.trim().isEmpty())
@@ -404,6 +389,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	{
 		runOnUiThread(new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				if (show)
@@ -494,7 +480,9 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 					showProgressBar(false);
 				}
 				else
+				{
 					setDefaultAlbumImage();
+				}
 				return null;
 			}
 
@@ -546,6 +534,8 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 
 	private void setupPlaybackButtons()
 	{
+		_noConnectionAlertCounter = 0;
+
 		buttonPrev = (ImageButton)findViewById(R.id.prev);
 		buttonStop = (ImageButton)findViewById(R.id.stop);
 		buttonPlay = (ImageButton)findViewById(R.id.play);
@@ -561,24 +551,30 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	{
 		alertDialogBuilder = new AlertDialog.Builder(this);
 		alertDialogBuilder.setTitle("You are not connected");
-		alertDialogBuilder.setMessage("Please connect before using the buttons").setCancelable(false).setPositiveButton("Ok", null);
+		if (_noConnectionAlertCounter < 5)
+			alertDialogBuilder.setMessage("Please connect before using the buttons").setCancelable(false)
+				.setPositiveButton("Ok", null);
+		else
+			alertDialogBuilder.setMessage("Seriously, stawp... \nPlease connect -.-").setCancelable(false)
+				.setPositiveButton("Ok", null);
 		alertDialogBuilder.create().show();
+		_noConnectionAlertCounter++;
 	}
 
 	private void loadSliderStuff(FragmentTransaction transaction)
 	{
-		SlidingMenu sm = getSlidingMenu();
-		sm.setMode(SlidingMenu.LEFT_RIGHT);
-		sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+		_sm = getSlidingMenu();
+		_sm.setMode(SlidingMenu.LEFT_RIGHT);
+		_sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
 
-		sm.setShadowWidthRes(R.dimen.shadow_width);
-		sm.setShadowDrawable(R.drawable.shadow);
+		_sm.setShadowWidthRes(R.dimen.shadow_width);
+		_sm.setShadowDrawable(R.drawable.shadow);
 
-		sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
-		sm.setFadeDegree(0.35f);
+		_sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
+		_sm.setFadeDegree(0.35f);
 
-		sm.setSecondaryMenu(R.layout.right_frame);
-		sm.setSecondaryShadowDrawable(R.drawable.shadowright);
+		_sm.setSecondaryMenu(R.layout.right_frame);
+		_sm.setSecondaryShadowDrawable(R.drawable.shadowright);
 
 		transaction.replace(R.id.left_frame, new ServerList()); //LEFT
 		transaction.replace(R.id.right_frame, new StationList()); //RIGHT
@@ -598,12 +594,16 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 					{
 						curVol--;
 						if (curVol < 0)
+						{
 							curVol = 0;
+						}
 						setVolume(curVol * 100d / MAX_VOLUME);
 						if (volumeSeekBar != null)
+						{
 							volumeSeekBar.setProgress(curVol);
-						//						dialog.dismiss();
-						//						showVolumeToaster(curVol);
+							//						dialog.dismiss();
+							//						showVolumeToaster(curVol);
+						}
 					}
 					else
 					{
@@ -617,12 +617,16 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 					{
 						curVol++;
 						if (curVol > MAX_VOLUME)
+						{
 							curVol = MAX_VOLUME;
+						}
 						setVolume(curVol * 100d / MAX_VOLUME);
 						if (volumeSeekBar != null)
+						{
 							volumeSeekBar.setProgress(curVol);
-						//						dialog.dismiss();
-						//						showVolumeToaster(curVol);
+							//						dialog.dismiss();
+							//						showVolumeToaster(curVol);
+						}
 					}
 					else
 					{
@@ -648,7 +652,9 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 				public void run()
 				{
 					if (ClientService.clientAPI != null)
+					{
 						UpdaterService.update(ClientService.clientAPI.getCurrent());
+					}
 				}
 			});
 		}
@@ -661,7 +667,9 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 			.setOngoing(true).setAutoCancel(false).setContentTitle(title).setContentText(station).setSubText(message);
 
 		if (bitmap != null)
+		{
 			mBuilder.setLargeIcon(bitmap);
+		}
 		Intent resultIntent = new Intent(this, MainActivity.class);
 
 		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
@@ -672,5 +680,13 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		mBuilder.setContentIntent(resultPendingIntent);
 
 		mNotificationManager.notify(notificationId, mBuilder.build());
+	}
+
+	public void hideRightSide(boolean b)
+	{
+		if (b)
+			_sm.setMode(SlidingMenu.LEFT);
+		else
+			_sm.setMode(SlidingMenu.LEFT_RIGHT);
 	}
 }

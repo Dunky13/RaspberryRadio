@@ -22,7 +22,7 @@ package com.mwent.raspberryradio.station.qr;
  * {@link IntentIntegrator}.
  * </p>
  * 
- * @author Sean Owen
+ * @author Sean Owen 
  */
 public final class IntentResult
 {

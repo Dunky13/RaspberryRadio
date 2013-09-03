@@ -53,6 +53,7 @@ public class UpdaterService extends Service
 	public static void stop()
 	{
 		ClientService.clientAPI.stop();
+		emptySongInfo();
 	}
 
 	@Override

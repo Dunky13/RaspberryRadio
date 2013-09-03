@@ -210,6 +210,7 @@ public class ServerSettingsActivity extends Activity implements OnClickListener
 					ClientService.clientAPI.disconnect();
 					ClientService.mainActivity.setSongText(getResources().getString(R.string.no_song_playing));
 					ClientService.mainActivity.setDefaultAlbumImage();
+					ClientService.mainActivity.hideRightSide(true);
 					ClientService.mainActivity.toggle();
 				}
 

@@ -185,6 +185,7 @@ public class StationSettingsActivity extends Activity implements OnClickListener
 		alertDialogBuilder.create().show();
 	}
 
+	@SuppressWarnings("unused")
 	private void getQR(String name, String station)
 	{
 		AsyncTask<String, Void, Bitmap> task = new AsyncTask<String, Void, Bitmap>()

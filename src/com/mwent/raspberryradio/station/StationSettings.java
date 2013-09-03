@@ -4,7 +4,6 @@ import com.mwent.raspberryradio.R;
 
 public class StationSettings
 {
-	public static final int DEFAULT_PORT = 6584;
 	public static final StationSettings NEW_STATION = new StationSettings(
 		-1,
 		"New Station",
@@ -30,8 +29,6 @@ public class StationSettings
 
 	private int _pos;
 
-	public static final char DELIM = StationList.DELIM;
-
 	private final char _DELIM;
 
 	private final int _image;
@@ -40,7 +37,7 @@ public class StationSettings
 
 	public StationSettings(int id, String name, String ip, int pos)
 	{
-		this(id, name, ip, pos, DELIM);
+		this(id, name, ip, pos, StationList.DELIM);
 	}
 
 	public StationSettings(int id, String name, String ip, int pos, char delim)
