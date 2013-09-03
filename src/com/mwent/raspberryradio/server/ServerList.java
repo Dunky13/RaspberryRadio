@@ -249,6 +249,7 @@ public class ServerList extends ListFragment implements OnClickListener
 				{
 					ClientService.mainActivity.setUpdaterTimer();
 					ClientService.mainActivity.startService(new Intent(ClientService.mainActivity, UpdaterService.class)); // Start updater service
+					ClientService.mainActivity.hideRightSide(false);
 					// show the settings menu button when connected to the server
 				}
 				// Start the updater
