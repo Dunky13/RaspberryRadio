@@ -1,5 +1,6 @@
 package com.mwent.raspberryradio;
 
+import info.mwent.RaspberryRadio.client.exceptions.DisconnectException;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
@@ -15,7 +16,15 @@ public class UpdaterService extends Service
 		super.onCreate();
 		if (ClientService.clientAPI != null)
 		{
-			String songInfo = ClientService.clientAPI.getCurrent();
+			String songInfo = null;
+			try
+			{
+				songInfo = ClientService.clientAPI.getCurrent();
+			}
+			catch (DisconnectException e)
+			{
+				ClientService.mainActivity.hideRightSide(true);
+			}
 			update(songInfo);
 		}
 	}
@@ -37,23 +46,58 @@ public class UpdaterService extends Service
 
 	public static void prev()
 	{
-		update(ClientService.clientAPI.prev());
+		try
+		{
+			update(ClientService.clientAPI.prev());
+		}
+		catch (DisconnectException e)
+		{
+			ClientService.mainActivity.hideRightSide(true);
+		}
 	}
 
 	public static void next()
 	{
-		update(ClientService.clientAPI.next());
+		try
+		{
+			update(ClientService.clientAPI.next());
+		}
+		catch (DisconnectException e)
+		{
+			ClientService.mainActivity.hideRightSide(true);
+		}
 	}
 
 	public static void play()
 	{
-		update(ClientService.clientAPI.play());
+		String play = "-1";
+		try
+		{
+			play = ClientService.clientAPI.play();
+		}
+		catch (DisconnectException e)
+		{
+			//			Log.e("Disconnect Error", e.getMessage());
+			ClientService.mainActivity.hideRightSide(true);
+		}
+		//		Log.e("Play Test", play);
+		update(play);
 	}
 
 	public static void stop()
 	{
-		ClientService.clientAPI.stop();
-		emptySongInfo();
+		try
+		{
+			ClientService.clientAPI.stop();
+		}
+		catch (DisconnectException e)
+		{
+			ClientService.mainActivity.hideRightSide(true);
+		}
+		finally
+		{
+			emptySongInfo();
+		}
 	}
 
 	@Override

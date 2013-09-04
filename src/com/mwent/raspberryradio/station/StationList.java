@@ -1,5 +1,6 @@
 package com.mwent.raspberryradio.station;
 
+import info.mwent.RaspberryRadio.client.exceptions.DisconnectException;
 import info.mwent.RaspberryRadio.shared.CommandStationList;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -108,8 +109,15 @@ public class StationList extends ListFragment implements OnClickListener, OnLong
 	{
 		setting.setId(getID());
 		_stations.add(setting);
-		ClientService.clientAPI.add(setting.getName(), setting.getIp());
-		firstLoadStationList();
+		try
+		{
+			ClientService.clientAPI.add(setting.getName(), setting.getIp());
+			firstLoadStationList();
+		}
+		catch (DisconnectException e)
+		{
+			ClientService.mainActivity.hideRightSide(true);
+		}
 		//		write();
 	}
 
@@ -121,8 +129,15 @@ public class StationList extends ListFragment implements OnClickListener, OnLong
 		{
 			stationsIds.remove((Object)pos);
 			_stations.remove(pos);
-			ClientService.clientAPI.removeStation(setting.getPos());
-			firstLoadStationList();
+			try
+			{
+				ClientService.clientAPI.removeStation(setting.getPos());
+				firstLoadStationList();
+			}
+			catch (DisconnectException e)
+			{
+				ClientService.mainActivity.hideRightSide(true);
+			}
 			return;
 		}
 
@@ -187,7 +202,15 @@ public class StationList extends ListFragment implements OnClickListener, OnLong
 		stationsIds = new ArrayList<Integer>();
 		if (ClientService.clientAPI == null)
 			return;
-		List<CommandStationList> stations = ClientService.clientAPI.getListAll();
+		List<CommandStationList> stations = new ArrayList<CommandStationList>();
+		try
+		{
+			stations = ClientService.clientAPI.getListAll();
+		}
+		catch (DisconnectException e)
+		{
+			ClientService.mainActivity.hideRightSide(true);
+		}
 
 		for (CommandStationList station : stations)
 		{
@@ -215,7 +238,15 @@ public class StationList extends ListFragment implements OnClickListener, OnLong
 		if (ClientService.mainActivity != null)
 		{
 			ClientService.mainActivity.toggle();
-			String station = ClientService.clientAPI.setStation(settings.getPos());
+			String station = null;
+			try
+			{
+				station = ClientService.clientAPI.setStation(settings.getPos());
+			}
+			catch (DisconnectException e)
+			{
+				ClientService.mainActivity.hideRightSide(true);
+			}
 			if (station != null)
 				UpdaterService.update(station);
 		}

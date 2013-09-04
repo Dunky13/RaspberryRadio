@@ -1,5 +1,6 @@
 package com.mwent.raspberryradio;
 
+import info.mwent.RaspberryRadio.client.exceptions.DisconnectException;
 import java.util.Timer;
 import java.util.TimerTask;
 import android.annotation.TargetApi;
@@ -116,7 +117,14 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		super.onStart();
 		if (ClientService.clientAPI != null)
 		{
-			UpdaterService.update(ClientService.clientAPI.getCurrent());
+			try
+			{
+				UpdaterService.update(ClientService.clientAPI.getCurrent());
+			}
+			catch (DisconnectException e)
+			{
+				ClientService.mainActivity.hideRightSide(true);
+			}
 		}
 	}
 
@@ -211,7 +219,14 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		case R.id.album_image:
 			if (ClientService.clientAPI != null)
 			{
-				UpdaterService.update(ClientService.clientAPI.getCurrent());
+				try
+				{
+					UpdaterService.update(ClientService.clientAPI.getCurrent());
+				}
+				catch (DisconnectException e)
+				{
+					ClientService.mainActivity.hideRightSide(true);
+				}
 			}
 			break;
 		case android.R.id.home:
@@ -408,27 +423,34 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 
 	public void updateInfo(final String songInfo)
 	{
-		if (ClientService.clientAPI.isPlaying())
+		try
 		{
-			showProgressBar(true);
-			ClientService.stationList.firstLoadStationList();
-			new Thread(new Runnable()
+			if (ClientService.clientAPI.isPlaying())
 			{
-				@Override
-				public void run()
+				showProgressBar(true);
+				ClientService.stationList.firstLoadStationList();
+				new Thread(new Runnable()
 				{
-					if (setSongText(songInfo))
+					@Override
+					public void run()
 					{
-						showAlbumImage(songInfo);
+						if (setSongText(songInfo))
+						{
+							showAlbumImage(songInfo);
+						}
+						else
+						{
+							setSongText(getResources().getString(R.string.no_song_name));
+							setDefaultAlbumImage();
+							setNotification("RaspberryRadio", songInfo, ClientService.serverSettings.getName());
+						}
 					}
-					else
-					{
-						setSongText(getResources().getString(R.string.no_song_name));
-						setDefaultAlbumImage();
-						setNotification("RaspberryRadio", songInfo, ClientService.serverSettings.getName());
-					}
-				}
-			}).start();
+				}).start();
+			}
+		}
+		catch (DisconnectException e)
+		{
+			ClientService.mainActivity.hideRightSide(true);
 		}
 	}
 
@@ -439,7 +461,14 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		String coverString = null;
 		if (ClientService.clientAPI.isAlbumCoversEnabled())
 		{
-			coverString = ClientService.clientAPI.getAlbumCover();
+			try
+			{
+				coverString = ClientService.clientAPI.getAlbumCover();
+			}
+			catch (DisconnectException e)
+			{
+				ClientService.mainActivity.hideRightSide(true);
+			}
 		}
 		if (coverString == null || coverString.trim().isEmpty())
 		{
@@ -515,13 +544,27 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		curVol = 7;//am.getStreamVolume(AudioManager.STREAM_RING);
 		if (ClientService.clientAPI != null)
 		{
-			ClientService.clientAPI.setVolume(curVol * 100d / MAX_VOLUME);
+			try
+			{
+				ClientService.clientAPI.setVolume(curVol * 100d / MAX_VOLUME);
+			}
+			catch (DisconnectException e)
+			{
+				ClientService.mainActivity.hideRightSide(true);
+			}
 		}
 	}
 
 	private void setVolume(double percentage)
 	{
-		ClientService.clientAPI.setVolume(percentage);
+		try
+		{
+			ClientService.clientAPI.setVolume(percentage);
+		}
+		catch (DisconnectException e)
+		{
+			ClientService.mainActivity.hideRightSide(true);
+		}
 	}
 
 	private void setupAlbumImage()
@@ -653,7 +696,14 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 				{
 					if (ClientService.clientAPI != null)
 					{
-						UpdaterService.update(ClientService.clientAPI.getCurrent());
+						try
+						{
+							UpdaterService.update(ClientService.clientAPI.getCurrent());
+						}
+						catch (DisconnectException e)
+						{
+							ClientService.mainActivity.hideRightSide(true);
+						}
 					}
 				}
 			});
@@ -685,7 +735,10 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	public void hideRightSide(boolean b)
 	{
 		if (b)
+		{
 			_sm.setMode(SlidingMenu.LEFT);
+			//			_sm.toggle();
+		}
 		else
 			_sm.setMode(SlidingMenu.LEFT_RIGHT);
 	}

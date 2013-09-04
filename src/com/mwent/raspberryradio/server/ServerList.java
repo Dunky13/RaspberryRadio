@@ -229,7 +229,6 @@ public class ServerList extends ListFragment implements OnClickListener
 		try
 		{
 			ClientService.clientAPI.connect(settings.getUsername(), settings.getPassword(), _timeOut);
-
 		}
 		catch (Exception e)
 		{
