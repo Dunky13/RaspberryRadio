@@ -61,13 +61,14 @@ public class StationList extends ListFragment implements OnClickListener, OnLong
 			ClientService.stationSettings = StationSettings.NEW_STATION;
 			startActivity(new Intent(getActivity(), StationSettingsActivity.class));
 		}
-		else if (settings == StationSettings.NEW_STATION_BY_QR)
-		{
-			IntentIntegrator integrator = new IntentIntegrator(getActivity());
-			Intent i = integrator.getIntent();
-			this.startActivityForResult(i, IntentIntegrator.REQUEST_CODE);
+		//		else if (settings == StationSettings.NEW_STATION_BY_QR)
+		//		{
+		//BUGGY
+		//			IntentIntegrator integrator = new IntentIntegrator(getActivity());
+		//			Intent i = integrator.getIntent();
+		//			this.startActivityForResult(i, IntentIntegrator.REQUEST_CODE);
 
-		}
+		//		}
 		else
 		{
 			processStationClick(settings);
@@ -166,13 +167,12 @@ public class StationList extends ListFragment implements OnClickListener, OnLong
 
 	private void loadStationList()
 	{
-
 		adapter.clear();
 		if (_stations != null)
 			adapter.addAll(_stations);
 
 		adapter.add(StationSettings.NEW_STATION);
-		adapter.add(StationSettings.NEW_STATION_BY_QR);
+		//		adapter.add(StationSettings.NEW_STATION_BY_QR);
 	}
 
 	private int getID()

@@ -153,8 +153,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
 		getMenuInflater().inflate(R.menu.main, menu);
-		MenuItem item = menu.findItem(R.id.action_settings);
-		item.setVisible(false);
+		menu.findItem(R.id.action_settings).setVisible(false);
 		this.menu = menu;
 		return true;
 	}
@@ -345,6 +344,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 				{
 					setVolume(progress * 100d / MAX_VOLUME);
 				}
+				restartThread.restart();
 			}
 		});
 	}
@@ -539,9 +539,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 
 	private void setStartVolume()
 	{
-		//		AudioManager am = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-		//am.getStreamMaxVolume(AudioManager.STREAM_RING);
-		curVol = 7;//am.getStreamVolume(AudioManager.STREAM_RING);
+		curVol = 7;
 		if (ClientService.clientAPI != null)
 		{
 			try
@@ -734,12 +732,17 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 
 	public void hideRightSide(boolean b)
 	{
-		if (b)
+		if (_sm != null)
 		{
-			_sm.setMode(SlidingMenu.LEFT);
-			//			_sm.toggle();
+			if (b)
+				_sm.setMode(SlidingMenu.LEFT);
+			else
+				_sm.setMode(SlidingMenu.LEFT_RIGHT);
 		}
-		else
-			_sm.setMode(SlidingMenu.LEFT_RIGHT);
+		if (ClientService.mainActivity.menu != null)
+		{
+			ClientService.mainActivity.menu.findItem(R.id.action_settings).setVisible(!b);
+			ClientService.mainActivity.menu.findItem(R.id.action_stations).setVisible(!b);
+		}
 	}
 }

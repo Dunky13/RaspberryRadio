@@ -247,8 +247,8 @@ public class ServerList extends ListFragment implements OnClickListener
 				if (ClientService.mainActivity != null)
 				{
 					ClientService.mainActivity.setUpdaterTimer();
-					ClientService.mainActivity.startService(new Intent(ClientService.mainActivity, UpdaterService.class)); // Start updater service
-					ClientService.mainActivity.hideRightSide(false);
+					ClientService.updaterService = new Intent(ClientService.mainActivity, UpdaterService.class);
+					ClientService.mainActivity.startService(ClientService.updaterService); // Start updater service
 					// show the settings menu button when connected to the server
 				}
 				// Start the updater
@@ -259,9 +259,8 @@ public class ServerList extends ListFragment implements OnClickListener
 
 		if (ClientService.mainActivity != null)
 		{
-			ClientService.mainActivity.menu.findItem(R.id.action_settings).setVisible(true);
+			ClientService.mainActivity.hideRightSide(false);
 			ClientService.mainActivity.toggle();
-			//			UpdaterService.update(ClientService.clientAPI.getUpdate());
 		}
 	}
 

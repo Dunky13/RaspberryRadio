@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -208,17 +207,17 @@ public class ServerSettingsActivity extends Activity implements OnClickListener
 				if (ClientService.clientAPI.isConnected())
 				{
 					ClientService.clientAPI.disconnect();
+					if (ClientService.updaterService != null)
+						ClientService.mainActivity.stopService(ClientService.updaterService);
 					ClientService.mainActivity.setSongText(getResources().getString(R.string.no_song_playing));
 					ClientService.mainActivity.setDefaultAlbumImage();
 					ClientService.mainActivity.hideRightSide(true);
 					ClientService.mainActivity.toggle();
 				}
 
-				// hide server settings button in the main screen on disconnect
 				if (ClientService.mainActivity.menu != null)
 				{
-					MenuItem item = ClientService.mainActivity.menu.findItem(R.id.action_settings);
-					item.setVisible(false);
+					ClientService.mainActivity.hideRightSide(true);
 				}
 			}
 		}).setNegativeButton("Cancel", null);

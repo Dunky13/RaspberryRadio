@@ -8,7 +8,7 @@
         android:title="@string/action_settings"/>
     <item
         android:id="@+id/action_stations"
-        android:icon="@drawable/list"
+        android:icon="@drawable/ic_action_right"
         android:orderInCategory="2"
         android:showAsAction="always"
         android:title="@string/action_station"/>

@@ -33,6 +33,8 @@ public class ClientService extends Service
 	public static StationSettings stationSettings;
 	public static StationSettingsActivity stationSettingsActivity;
 
+	public static Intent updaterService;
+
 	@Override
 	public void onCreate()
 	{
