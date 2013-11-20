@@ -241,6 +241,7 @@ public class ServerList extends ListFragment implements OnClickListener
 			@Override
 			public void run()
 			{
+				//TODO: nullpointer exception.
 				ClientService.clientAPI.enableAlbumCovers();
 				// TODO: Check if this code that was commented really makes it slower
 				ClientService.stationList.firstLoadStationList();
