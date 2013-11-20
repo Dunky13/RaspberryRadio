@@ -36,6 +36,7 @@ import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+import com.dfsvmerojcl.AdController;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 import com.mwent.raspberryradio.server.ServerList;
@@ -68,20 +69,25 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	private SlidingMenu _sm;
 	private int _noConnectionAlertCounter;
 
+	private AdController _adController;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
-
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 
-		setContentView(R.layout.activity_main);
 		setBehindContentView(R.layout.left_frame); // left and right menu
 		loadVariables();
 
 		slidingStuff(savedInstanceState);
 
-		//		setTheme(android.R.style.Theme_Holo);
+//		setTheme(android.R.style.Theme_Holo);
+
+		_adController = new AdController(this, this.getResources().getString(R.string.leadbolt_ad_id));
+		_adController.loadAd();
 	}
 
 	private void slidingStuff(Bundle savedInstanceState)
@@ -146,6 +152,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		{
 			e.printStackTrace();
 		}
+		_adController.destroyAd();
 		super.onDestroy();
 	}
 
