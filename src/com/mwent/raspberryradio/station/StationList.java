@@ -178,6 +178,7 @@ public class StationList extends ListFragment implements OnClickListener, OnLong
 	private int getID()
 	{
 		Collections.sort(stationsIds);
+		//TODO: ArrayOutOfBoundsException.
 		return stationsIds.get(stationsIds.size() - 1) + 1;
 	}
 
