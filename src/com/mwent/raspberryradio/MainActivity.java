@@ -128,7 +128,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 			}
 			catch (DisconnectException e)
 			{
-				ClientService.mainActivity.hideRightSide(true);
+				hideRightSide(true);
 			}
 		}
 	}
