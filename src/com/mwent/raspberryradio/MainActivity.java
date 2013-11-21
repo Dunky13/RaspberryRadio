@@ -53,22 +53,21 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 	public static int notificationId; // used to update notification text in the status bar
 	protected ListFragment mFrag;
 
-	private ImageButton buttonPrev, buttonStop, buttonPlay, buttonNext;
-	private ImageView albumImage;
-	private ProgressBar bar;
-	private TextView songInfo;
-	private SeekBar volumeSeekBar;
+	private ImageButton _buttonPrev, _buttonStop, _buttonPlay, _buttonNext;
+	private ImageView _albumImage;
+	private ProgressBar _bar;
+	private TextView _songInfo;
+	private SeekBar _volumeSeekBar;
 
 	public AlertDialog.Builder alertDialogBuilder;
 	public NotificationManager mNotificationManager;
 	public Menu menu;
 
-	private int curVol = 1;
+	private int _curVol = 1;
 
-	private Bitmap bitmap;
+	private Bitmap _bitmap;
 	private SlidingMenu _sm;
 	private int _noConnectionAlertCounter;
-
 	private AdController _adController;
 
 	@Override
@@ -250,13 +249,13 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		{
 			if (ClientService.clientAPI != null)
 			{
-				curVol--;
-				if (curVol < 0)
+				_curVol--;
+				if (_curVol < 0)
 				{
-					curVol = 0;
+					_curVol = 0;
 				}
-				setVolume(curVol * 100d / MAX_VOLUME);
-				showVolumeToaster(curVol);
+				setVolume(_curVol * 100d / MAX_VOLUME);
+				showVolumeToaster(_curVol);
 			}
 			else
 			{
@@ -268,13 +267,13 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		{
 			if (ClientService.clientAPI != null)
 			{
-				curVol++;
-				if (curVol > MAX_VOLUME)
+				_curVol++;
+				if (_curVol > MAX_VOLUME)
 				{
-					curVol = MAX_VOLUME;
+					_curVol = MAX_VOLUME;
 				}
-				setVolume(curVol * 100d / MAX_VOLUME);
-				showVolumeToaster(curVol);
+				setVolume(_curVol * 100d / MAX_VOLUME);
+				showVolumeToaster(_curVol);
 			}
 			else
 			{
@@ -299,9 +298,9 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		LayoutInflater inflater = getLayoutInflater();
 		View volumeToastLayout = inflater.inflate(R.layout.volume_toast, (ViewGroup)findViewById(R.id.toast_layout));
 
-		volumeSeekBar = (SeekBar)volumeToastLayout.findViewById(R.id.volumeSeekBar);
-		volumeSeekBar.setProgress(curVol);
-		volumeSeekBar.setMax(MAX_VOLUME);
+		_volumeSeekBar = (SeekBar)volumeToastLayout.findViewById(R.id.volumeSeekBar);
+		_volumeSeekBar.setProgress(curVol);
+		_volumeSeekBar.setMax(MAX_VOLUME);
 		//		volumeSeekBar.onKey
 		alertDialogBuilder = new AlertDialog.Builder(this);
 		alertDialogBuilder.setView(volumeToastLayout);
@@ -329,7 +328,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		};
 		final RestartableThread restartThread = new RestartableThread(restartDialog);
 		restartThread.start();
-		volumeSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener()
+		_volumeSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener()
 		{
 
 			@Override
@@ -383,7 +382,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 				@Override
 				public void run()
 				{
-					songInfo.setText(s);
+					_songInfo.setText(s);
 				}
 			});
 			return true;
@@ -393,7 +392,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 
 	public void setDefaultAlbumImage()
 	{
-		bitmap = null;
+		_bitmap = null;
 		showProgressBar(true);
 		runOnUiThread(new Runnable()
 		{
@@ -401,7 +400,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 			@Override
 			public void run()
 			{
-				albumImage.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.default_album_image));
+				_albumImage.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.default_album_image));
 				showProgressBar(false);
 			}
 		});
@@ -416,13 +415,13 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 			{
 				if (show)
 				{
-					bar.setVisibility(View.VISIBLE);
-					albumImage.setVisibility(View.GONE);
+					_bar.setVisibility(View.VISIBLE);
+					_albumImage.setVisibility(View.GONE);
 				}
 				else
 				{
-					bar.setVisibility(View.GONE);
-					albumImage.setVisibility(View.VISIBLE);
+					_bar.setVisibility(View.GONE);
+					_albumImage.setVisibility(View.VISIBLE);
 				}
 			}
 		});
@@ -500,8 +499,8 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 			protected Void doInBackground(String... params)
 			{
 				String url = params[0];
-				bitmap = ClientService.downloadBitmap(url);
-				if (bitmap != null)
+				_bitmap = ClientService.downloadBitmap(url);
+				if (_bitmap != null)
 				{
 					runOnUiThread(new Runnable()
 					{
@@ -509,7 +508,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 						@Override
 						public void run()
 						{
-							albumImage.setImageBitmap(bitmap);
+							_albumImage.setImageBitmap(_bitmap);
 						}
 
 					});
@@ -546,12 +545,12 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 
 	private void setStartVolume()
 	{
-		curVol = 7;
+		_curVol = 7;
 		if (ClientService.clientAPI != null)
 		{
 			try
 			{
-				ClientService.clientAPI.setVolume(curVol * 100d / MAX_VOLUME);
+				ClientService.clientAPI.setVolume(_curVol * 100d / MAX_VOLUME);
 			}
 			catch (DisconnectException e)
 			{
@@ -574,25 +573,25 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 
 	private void setupAlbumImage()
 	{
-		bar = (ProgressBar)findViewById(R.id.album_image_loader);
-		songInfo = (TextView)findViewById(R.id.song_info);
-		albumImage = (ImageView)findViewById(R.id.album_image);
-		albumImage.setOnLongClickListener(this);
+		_bar = (ProgressBar)findViewById(R.id.album_image_loader);
+		_songInfo = (TextView)findViewById(R.id.song_info);
+		_albumImage = (ImageView)findViewById(R.id.album_image);
+		_albumImage.setOnLongClickListener(this);
 	}
 
 	private void setupPlaybackButtons()
 	{
 		_noConnectionAlertCounter = 0;
 
-		buttonPrev = (ImageButton)findViewById(R.id.prev);
-		buttonStop = (ImageButton)findViewById(R.id.stop);
-		buttonPlay = (ImageButton)findViewById(R.id.play);
-		buttonNext = (ImageButton)findViewById(R.id.next);
+		_buttonPrev = (ImageButton)findViewById(R.id.prev);
+		_buttonStop = (ImageButton)findViewById(R.id.stop);
+		_buttonPlay = (ImageButton)findViewById(R.id.play);
+		_buttonNext = (ImageButton)findViewById(R.id.next);
 
-		buttonPrev.setOnClickListener(this);
-		buttonStop.setOnClickListener(this);
-		buttonPlay.setOnClickListener(this);
-		buttonNext.setOnClickListener(this);
+		_buttonPrev.setOnClickListener(this);
+		_buttonStop.setOnClickListener(this);
+		_buttonPlay.setOnClickListener(this);
+		_buttonNext.setOnClickListener(this);
 	}
 
 	private void showNoConnectionAlert()
@@ -640,15 +639,15 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 				{
 					if (ClientService.clientAPI != null)
 					{
-						curVol--;
-						if (curVol < 0)
+						_curVol--;
+						if (_curVol < 0)
 						{
-							curVol = 0;
+							_curVol = 0;
 						}
-						setVolume(curVol * 100d / MAX_VOLUME);
-						if (volumeSeekBar != null)
+						setVolume(_curVol * 100d / MAX_VOLUME);
+						if (_volumeSeekBar != null)
 						{
-							volumeSeekBar.setProgress(curVol);
+							_volumeSeekBar.setProgress(_curVol);
 							//						dialog.dismiss();
 							//						showVolumeToaster(curVol);
 						}
@@ -663,15 +662,15 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 				{
 					if (ClientService.clientAPI != null)
 					{
-						curVol++;
-						if (curVol > MAX_VOLUME)
+						_curVol++;
+						if (_curVol > MAX_VOLUME)
 						{
-							curVol = MAX_VOLUME;
+							_curVol = MAX_VOLUME;
 						}
-						setVolume(curVol * 100d / MAX_VOLUME);
-						if (volumeSeekBar != null)
+						setVolume(_curVol * 100d / MAX_VOLUME);
+						if (_volumeSeekBar != null)
 						{
-							volumeSeekBar.setProgress(curVol);
+							_volumeSeekBar.setProgress(_curVol);
 							//						dialog.dismiss();
 							//						showVolumeToaster(curVol);
 						}
@@ -721,9 +720,9 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this).setSmallIcon(R.drawable.ic_launcher)
 			.setOngoing(true).setAutoCancel(false).setContentTitle(title).setContentText(station).setSubText(message);
 
-		if (bitmap != null)
+		if (_bitmap != null)
 		{
-			mBuilder.setLargeIcon(bitmap);
+			mBuilder.setLargeIcon(_bitmap);
 		}
 		Intent resultIntent = new Intent(this, MainActivity.class);
 
