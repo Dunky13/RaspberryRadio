@@ -746,10 +746,10 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 			else
 				_sm.setMode(SlidingMenu.LEFT_RIGHT);
 		}
-		if (ClientService.mainActivity.menu != null)
+		if (menu != null)
 		{
-			ClientService.mainActivity.menu.findItem(R.id.action_settings).setVisible(!b);
-			ClientService.mainActivity.menu.findItem(R.id.action_stations).setVisible(!b);
+			menu.findItem(R.id.action_settings).setVisible(!b);
+			menu.findItem(R.id.action_stations).setVisible(!b);
 		}
 	}
 }
