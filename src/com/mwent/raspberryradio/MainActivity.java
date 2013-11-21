@@ -84,7 +84,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 
 		slidingStuff(savedInstanceState);
 
-//		setTheme(android.R.style.Theme_Holo);
+		//		setTheme(android.R.style.Theme_Holo);
 
 		_adController = new AdController(this, this.getResources().getString(R.string.leadbolt_ad_id));
 		_adController.loadAd();
@@ -108,7 +108,7 @@ public class MainActivity extends SlidingFragmentActivity implements OnClickList
 		if (data != null)
 		{
 			ClientService.stationSettings = StationURL.parse(data);
-			startActivity(new Intent(ClientService.mainActivity, StationSettingsActivity.class));
+			startActivity(new Intent(MainActivity.this, StationSettingsActivity.class));
 		}
 
 		loadSliderStuff(transaction);
